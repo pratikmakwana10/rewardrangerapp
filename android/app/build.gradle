@@ -27,7 +27,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.rewardrangerapp"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34  // Updated to 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -44,20 +44,15 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.rewardrangerapp"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 21  // Min SDK version typically should be lower
+        targetSdkVersion 34  // Updated to 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
         }
     }
@@ -67,4 +62,11 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.android.gms:play-services-ads:21.0.0' // Add Google Mobile Ads dependency
+    implementation 'androidx.webkit:webkit:1.11.0'  // Ensure this is included if used
+}
+
+// Add the following at the bottom of the file to apply the Google Services plugin
+apply plugin: 'com.google.gms.google-services'
