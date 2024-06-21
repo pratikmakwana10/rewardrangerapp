@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system, // Automatically switch between light and dark themes
-      home: const Login(),
+      home: const DashboardScreen(),
     );
   }
 }
