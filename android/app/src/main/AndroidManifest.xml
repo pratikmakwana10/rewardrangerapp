@@ -7,7 +7,7 @@
         <!-- Add the AdMob App ID here -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-2914700462713978~9731777830"/>
+            android:value="ca-app-pub-1692435847399045~2235064215"/>
 
         <!-- Main Activity -->
         <activity
@@ -38,4 +38,8 @@
             android:value="2"
         />
     </application>
+
+    <!-- Internet and Network State Permissions -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 </manifest>
