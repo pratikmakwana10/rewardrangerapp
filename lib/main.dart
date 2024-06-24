@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
     final ThemeData darkTheme = ThemeData(
       brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color.fromARGB(255, 25, 105, 253),
+        seedColor: const Color.fromARGB(255, 30, 186, 234),
         brightness: Brightness.dark,
       ),
       useMaterial3: true,
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system, // Automatically switch between light and dark themes
-      home: const DashboardScreen(),
+      home: const SignUpPage(),
     );
   }
 }

@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:rewardrangerapp/helper_function/utility.dart';
-import 'package:rewardrangerapp/screen/dashboard_screen.dart';
 import 'package:rewardrangerapp/screen/login_screen.dart';
 import '../helper_function/api_service.dart';
 import 'package:get_it/get_it.dart';
@@ -135,6 +132,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 },
               ),
               TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
                 controller: _firstNameController,
                 decoration: const InputDecoration(labelText: 'First Name'),
                 validator: (value) {
@@ -202,12 +210,11 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  TextFormField buildTextFormField(String labelText, ControllerCallback controllerCallback) {
-    TextEditingController controller = TextEditingController();
+  TextFormField buildTextFormField(String labelText, TextEditingController controller) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(labelText: labelText),
-      obscureText: true,
+      obscureText: labelText == 'Password',
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your $labelText';
