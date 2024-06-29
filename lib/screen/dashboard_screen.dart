@@ -44,13 +44,14 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
+    _fetchUserInfo();
     _currentIndex = Random().nextInt(quotes.length).toDouble();
     _timer = Timer.periodic(const Duration(seconds: 30), (Timer timer) {
       _nextQuote();
     });
     _loadBannerAd();
     _loadRewardedAd();
-    _fetchUserInfo(); // Fetch user info after login
+    // Fetch user info after login
 
     // Initialize animation controller
     _controller = AnimationController(
@@ -66,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
     // Initialize color animation
     _colorAnimation = ColorTween(
       begin: const Color.fromARGB(255, 255, 255, 255),
-      end: const Color.fromARGB(255, 6, 183, 183),
+      end: const Color.fromARGB(255, 7, 230, 230),
     ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
@@ -262,6 +263,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       height: 70,
                     ),
                     AnimatedTextKit(
+                      isRepeatingAnimation: true,
                       animatedTexts: [
                         ColorizeAnimatedText(
                           'Welcome, $_firstName!',
@@ -276,10 +278,13 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                             Colors.purple,
                             Colors.red,
                           ],
-                          speed: const Duration(milliseconds: 500), // Adjust duration here
+                          speed: const Duration(milliseconds: 600), // Adjust duration here
                         ),
                       ],
                       repeatForever: true,
+                    ),
+                    const SizedBox(
+                      height: 10,
                     ),
 
                     SizedBox(
@@ -288,6 +293,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         style: const TextStyle(
                           fontSize: 70.0,
                           fontFamily: 'Canterbury',
+                          color: Color.fromARGB(255, 0, 234, 255),
                         ),
                         child: AnimatedTextKit(
                           totalRepeatCount: 1,
@@ -309,26 +315,6 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 50,
-                    ),
-
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: _scaleAnimation.value,
-                          child: Text(
-                            'Score: $_score',
-                            style: TextStyle(color: _colorAnimation.value, fontSize: 24),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const SizedBox(height: 50.0),
                     SizedBox(
                       height: 100.0, // The height of the AnimatedTextKit widget
                       child: DefaultTextStyle(
@@ -360,6 +346,31 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         ),
                       ),
                     ), // Display the current score
+
+                    const SizedBox(
+                      height: 70,
+                    ),
+
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _scaleAnimation.value,
+                          child: Text(
+                            '🪙 $_score',
+                            //💵💸💰💲🎁💴💶💯🏦
+                            style: TextStyle(
+                                color: _colorAnimation.value,
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const SizedBox(height: 50.0),
                     const Spacer(),
                     SizedBox(
                       width: double.maxFinite,
@@ -411,19 +422,20 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: Colors.transparent,
-                            width: 2,
+                            width: 0,
                           ),
                         ),
                         child: Shimmer.fromColors(
-                          baseColor: const Color.fromARGB(255, 0, 0, 0),
-                          highlightColor: const Color.fromARGB(255, 219, 219, 101),
+                          period: const Duration(seconds: 2),
+                          enabled: _score >= 600 ? true : false,
+                          baseColor: const Color.fromARGB(255, 0, 43, 54),
+                          highlightColor: const Color.fromARGB(255, 234, 234, 12),
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color:
-                                    Colors.transparent, // Set to transparent to avoid double border
-                                width: 2,
+                                color: Colors.white, // Set to transparent to avoid double border
+                                width: 2.2,
                               ),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 8),
