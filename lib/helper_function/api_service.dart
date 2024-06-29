@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../helper_function/utility.dart';
+import '../model/sign_up_model.dart';
 
 class ApiService {
   final Dio _dio = Dio(BaseOptions(
@@ -9,6 +10,24 @@ class ApiService {
   ));
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  String? _token; // Variable to store the token
+
+  ApiService() {
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        _token ??= await _getToken();
+        logger.i('Interceptor TokenINTRECEPTOR: $_token');
+        if (_token != null) {
+          options.headers['token'] = _token;
+        }
+        return handler.next(options);
+      },
+      onError: (DioException error, handler) {
+        _handleDioError(error);
+        return handler.next(error);
+      },
+    ));
+  }
 
   Future<Map<String, dynamic>> signUp(Map<String, dynamic> userData) async {
     const String endpoint = 'https://reward-ranger-backend.onrender.com/signup';
@@ -36,6 +55,8 @@ class ApiService {
         final responseData = response.data;
         if (responseData['status'] == true) {
           logger.i('Login Response: ${responseData['data']}');
+          await _saveToken(responseData['data']['token']);
+          _token = responseData['data']['token']; // Update the token variable
           return responseData['data'];
         } else {
           throw Exception('Login failed: ${responseData['message']}');
@@ -49,17 +70,42 @@ class ApiService {
     return {};
   }
 
-  Future<Map<String, dynamic>> getUserInfo() async {
-    final String? token = await _getToken();
-    if (token == null) {
-      throw Exception('No token found');
-    }
-
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/me';
-
+  Future<void> _saveToken(String token) async {
     try {
-      final Response response = await _dio.get(
-        endpoint,
+      await _storage.write(key: 'token', value: token);
+      _token = token; // Update the token variable
+      logger.i('Token saved successfully');
+    } catch (e) {
+      logger.e('Failed to save auth token: $e');
+      throw Exception('Failed to save auth token: $e');
+    }
+  }
+
+  Future<String?> _getToken() async {
+    try {
+      if (_token == null) {
+        final token = await _storage.read(key: 'token');
+        logger.i('Token retrieved FROM GET TOKEN: $token');
+        _token = token; // Update the token variable
+      }
+      return _token;
+    } catch (e) {
+      logger.e('Failed to get auth token: $e');
+      throw Exception('Failed to get auth token: $e');
+    }
+  }
+
+  Future<UserInfo?> getUserInfo() async {
+    try {
+      // Fetch the token using _getToken method
+      String? token = await _getToken();
+      if (token == null) {
+        throw Exception('Token is null');
+      }
+
+      // Make the API call to fetch user info
+      final response = await _dio.get(
+        'https://reward-ranger-backend.onrender.com/api/me',
         options: Options(
           headers: {
             'token': token,
@@ -67,24 +113,49 @@ class ApiService {
         ),
       );
 
-      if (response.statusCode == 200) {
-        return response.data['data'];
+      // Parse the response and return UserInfo
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        return UserInfo.fromJson(response.data);
       } else {
-        throw Exception('Failed to fetch user info with status: ${response.statusCode}');
+        throw Exception('Failed to fetch user info: ${response.statusMessage}');
+      }
+    } on DioException catch (e) {
+      _handleDioError(e);
+      return null;
+    } catch (e) {
+      logger.e('Error fetching user info: $e');
+      throw Exception('Error fetching user info: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> postScore(int score) async {
+    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/score';
+
+    try {
+      _token ??= await _getToken();
+      if (_token == null) {
+        logger.e('Token is not available');
+        throw Exception('Token is not available');
+      }
+
+      logger.i('Posting score with token: $_token');
+      final response = await _dio.post(
+        endpoint,
+        data: {'score': score},
+        options: Options(
+          headers: {'Authorization': 'Bearer $_token'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        logger.i('Score posted successfully');
+        return response.data;
+      } else {
+        throw Exception('Failed to update score with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _handleDioError(e);
     }
     return {};
-  }
-
-  Future<String?> _getToken() async {
-    try {
-      return await _storage.read(key: 'auth_token');
-    } catch (e) {
-      logger.e('Failed to get auth token: $e');
-      throw Exception('Failed to get auth token: $e');
-    }
   }
 
   void _handleDioError(DioException e) {

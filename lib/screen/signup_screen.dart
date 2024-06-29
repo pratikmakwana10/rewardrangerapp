@@ -1,8 +1,8 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
-import 'package:rewardrangerapp/helper_function/utility.dart';
-import 'package:rewardrangerapp/screen/login_screen.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import '../helper_function/utility.dart';
 import '../helper_function/api_service.dart';
+import 'login_screen.dart';
 import 'package:get_it/get_it.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -56,7 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
           _showSuccessSnackbar(response['message']);
           // Navigate to the login page
           if (mounted) {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const Login()),
             );
@@ -203,24 +203,19 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: const Text('Sign Up'),
                 ),
               ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Login()),
+                  );
+                },
+                child: const Text('Already have an account? Log in'),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  TextFormField buildTextFormField(String labelText, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(labelText: labelText),
-      obscureText: labelText == 'Password',
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your $labelText';
-        }
-        return null;
-      },
     );
   }
 }

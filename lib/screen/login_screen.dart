@@ -35,7 +35,7 @@ class _LoginState extends State<Login> {
         final token = response['token'];
 
         // Store the token securely
-        await _storage.write(key: 'auth_token', value: token);
+        await _storage.write(key: 'token', value: token);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful!')),
