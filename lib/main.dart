@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:rewardrangerapp/firebase_options.dart';
 import 'package:rewardrangerapp/screen/dashboard_screen.dart';
@@ -33,6 +34,11 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  Future<bool> _isUserLoggedIn() async {
+    const storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'authToken');
+    return token != null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +56,30 @@ class MyApp extends StatelessWidget {
       useMaterial3: true,
     );
 
-    return MaterialApp(
-      title: 'Reward Ranger App',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: ThemeMode.dark, // Automatically switch between light and dark themes
-      home: const SignUpPage(),
+    return FutureBuilder<bool>(
+      future: _isUserLoggedIn(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return MaterialApp(
+            title: 'Reward Ranger App',
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: ThemeMode.dark,
+            home: const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        } else {
+          final bool isLoggedIn = snapshot.data ?? false;
+          return MaterialApp(
+            title: 'Reward Ranger App',
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: ThemeMode.dark,
+            home: isLoggedIn ? const DashboardScreen() : const Login(),
+          );
+        }
+      },
     );
   }
 }
