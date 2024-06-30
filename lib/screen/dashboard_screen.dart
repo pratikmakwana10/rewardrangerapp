@@ -54,10 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
     // Fetch user info after login
 
     // Initialize animation controller
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
 
     // Initialize scale animation
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.5).animate(
@@ -193,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
       _controller.reset();
       _controller.forward();
     });
-    _postScoreToApi(_score); // Post the updated score to the API
+    _postScoreToApi(increment); // Post the updated score to the API
   }
 
   void _handleReferAndEarn() {
@@ -201,9 +198,9 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
     _updateScore(increment1); // Add increment for Refer & Earn
   }
 
-  Future<void> _postScoreToApi(int score) async {
+  Future<void> _postScoreToApi(int increment) async {
     try {
-      final response = await _apiService.postScore(score);
+      final response = await _apiService.postScore(increment);
       if (response['status']) {
         logger.f('Score updated successfully: ${response['message']}');
       } else {

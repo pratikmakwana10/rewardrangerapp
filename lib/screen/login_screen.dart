@@ -13,8 +13,8 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController(text: "mark1@gmail.com");
-  final TextEditingController _passwordController = TextEditingController(text: "markone");
+  final TextEditingController _emailController = TextEditingController(text: "dummy121@gmail.com");
+  final TextEditingController _passwordController = TextEditingController(text: "test123");
   bool _isLoading = false;
 
   final ApiService _apiService = GetIt.instance<ApiService>();
