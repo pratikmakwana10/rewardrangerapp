@@ -5,8 +5,8 @@ import '../model/sign_up_model.dart';
 
 class ApiService {
   final Dio _dio = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 50),
-    receiveTimeout: const Duration(seconds: 30),
+    connectTimeout: const Duration(seconds: 8),
+    receiveTimeout: const Duration(seconds: 10),
   ));
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -151,6 +151,52 @@ class ApiService {
         return response.data;
       } else {
         throw Exception('Failed to update score with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      _handleDioError(e);
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> verifyEmail() async {
+    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/verify-email';
+
+    try {
+      _token ??= await _getToken();
+      if (_token == null) {
+        logger.e('Token is not available');
+        throw Exception('Token is not available');
+      }
+
+      logger.i('Verifying email with token: $_token');
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {'token': _token},
+        ),
+      );
+      if (response.statusCode == 200) {
+        logger.i('Email verified successfully');
+        return response.data;
+      } else {
+        throw Exception('Failed to verify email with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      _handleDioError(e);
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/forgot-password';
+
+    try {
+      final Response response = await _dio.post(endpoint, data: {'email': email});
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        logger.i('Forgot Password Response: ${response.data}');
+        return response.data;
+      } else {
+        throw Exception('Forgot password failed with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _handleDioError(e);

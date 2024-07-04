@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:rewardrangerapp/helper_function/dialog.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:lottie/lottie.dart';
 
@@ -27,6 +30,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   bool _isRewardedAdReady = false;
   int _score = 0; // Local score variable
   String? _firstName = '';
+  bool? _isVerified;
   late Timer _timer;
   double _currentIndex = 0;
   bool _firstAnimationComplete = false;
@@ -74,6 +78,11 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   }
 
   void _toggleAnimation() {
+    if (_isVerified == false) {
+      _showAlertDialog('Please verify your email.');
+      return; // Exit the function to avoid running the setState call
+    }
+
     setState(() {
       _isAnimating = true;
     });
@@ -84,6 +93,61 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
         _isAnimating = false;
       });
     });
+  }
+
+  void _showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Verify'),
+              onPressed: () {
+                // Add your verify action here
+                Navigator.of(context).pop();
+                _verifyEmail();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _verifyEmail() async {
+    try {
+      final result = await _apiService.verifyEmail();
+
+      if (result['status'] == true) {
+        setState(() {
+          _isVerified = true;
+        });
+        // Show success snackbar only if the widget is still mounted
+        if (mounted) {
+          DialogUtil.showSuccessSnackbar(context, 'Verification Link has been sent to your email');
+        }
+      } else {
+        // Show error snackbar only if the widget is still mounted
+        if (mounted) {
+          DialogUtil.showErrorSnackbar(context, 'Failed to verify email');
+        }
+      }
+    } catch (e) {
+      logger.e('Failed to verify email: $e');
+      // Show error snackbar only if the widget is still mounted
+      if (mounted) {
+        DialogUtil.showErrorSnackbar(context, 'An error occurred while verifying email');
+      }
+    }
   }
 
   void _nextQuote() {
@@ -106,6 +170,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
           _userInfo = userInfo;
           _score = userInfo.score; // Update the local score variable with the fetched score
           _firstName = userInfo.firstName;
+          _isVerified = userInfo.isVerified;
         });
       }
     } catch (e) {
@@ -223,8 +288,9 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    logger.w('$_firstName');
+    logger.w('$_isVerified}');
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       // appBar: AppBar(
       //   backgroundColor: const Color.fromARGB(255, 0, 0, 0),
@@ -243,7 +309,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
               Color.fromARGB(255, 9, 81, 115), // start with black
               Color.fromARGB(255, 57, 106, 252), // blue-ish
               Color.fromARGB(255, 154, 17, 255), // purple-ish
-              Colors.red, // red
+              Color.fromARGB(193, 220, 52, 2), // red
             ],
             stops: [0.0, 0.3, 0.6, 1.0], // begin with black and end with the blue-ish
           ),
@@ -259,27 +325,32 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     const SizedBox(
                       height: 70,
                     ),
-                    AnimatedTextKit(
-                      isRepeatingAnimation: true,
-                      animatedTexts: [
-                        ColorizeAnimatedText(
-                          'Welcome, $_firstName!',
-                          textStyle: const TextStyle(
-                            fontSize: 25.0,
-                            fontWeight: FontWeight.bold,
+                    _firstName == ""
+                        ? const SizedBox(
+                            height: 35,
+                          )
+                        : AnimatedTextKit(
+                            isRepeatingAnimation: true,
+                            animatedTexts: [
+                              ColorizeAnimatedText(
+                                'Welcome, $_firstName!',
+                                textStyle: const TextStyle(
+                                  fontSize: 25.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                colors: [
+                                  const Color.fromARGB(255, 0, 234, 255),
+                                  Colors.blue,
+                                  Colors.green,
+                                  Colors.purple,
+                                  Colors.red,
+                                  Colors.deepPurple
+                                ],
+                                speed: const Duration(milliseconds: 600), // Adjust duration here
+                              ),
+                            ],
+                            repeatForever: true,
                           ),
-                          colors: [
-                            const Color.fromARGB(255, 0, 234, 255),
-                            Colors.blue,
-                            Colors.green,
-                            Colors.purple,
-                            Colors.red,
-                          ],
-                          speed: const Duration(milliseconds: 600), // Adjust duration here
-                        ),
-                      ],
-                      repeatForever: true,
-                    ),
                     const SizedBox(
                       height: 10,
                     ),
@@ -313,10 +384,10 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       ),
                     ),
                     SizedBox(
-                      height: 100.0, // The height of the AnimatedTextKit widget
+                      height: 130.0, // The height of the AnimatedTextKit widget
                       child: DefaultTextStyle(
                         style: const TextStyle(
-                          fontSize: 24.0,
+                          fontSize: 20.0,
                           fontFamily: 'Canterbury',
                         ),
                         child: AnimatedTextKit(
@@ -345,7 +416,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     ), // Display the current score
 
                     const SizedBox(
-                      height: 70,
+                      height: 0,
                     ),
 
                     AnimatedBuilder(
@@ -353,13 +424,25 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       builder: (context, child) {
                         return Transform.scale(
                           scale: _scaleAnimation.value,
-                          child: Text(
-                            '🪙 $_score',
-                            //💵💸💰💲🎁💴💶💯🏦
-                            style: TextStyle(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                // Icons.currency_exchange,
+                                Icons.paid_outlined,
+                                // Icons.assured_workload,
                                 color: _colorAnimation.value,
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold),
+                                size: 40,
+                              ),
+                              Text(
+                                ' $_score',
+                                //💵💸💰💲🎁💴💶💯🏦
+                                style: TextStyle(
+                                    color: _colorAnimation.value,
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -376,7 +459,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 132, 228, 16), // Background color
-                          minimumSize: const Size(200, 50), // Width and height
+                          // minimumSize: const Size(200, 50), // Width and height
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8), // Horizontal padding
                           shape: RoundedRectangleBorder(
@@ -458,7 +541,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 14, 134, 164), // Background color
-                          minimumSize: const Size(200, 50), // Width and height
+                          // minimumSize: const Size(200, 50), // Width and height
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           // Horizontal padding
                           shape: RoundedRectangleBorder(
