@@ -5,6 +5,7 @@ class UserInfo {
   final int score;
   final String city;
   final String dob;
+  final bool isVerified; // New field
 
   UserInfo({
     required this.firstName,
@@ -13,6 +14,7 @@ class UserInfo {
     required this.score,
     required this.city,
     required this.dob,
+    required this.isVerified, // New field
   });
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,19 @@ class UserInfo {
       score: data['score'],
       city: data['city'],
       dob: data['dob'],
+      isVerified: data['is_verified'], // New field
     );
   }
+
+  // Map<String, dynamic> toJson() {
+  //   return {
+  //     'first_name': firstName,
+  //     'last_name': lastName,
+  //     'gender': gender,
+  //     'score': score,
+  //     'city': city,
+  //     'dob': dob,
+  //     'is_verified': isVerified, // New field
+  //   };
+  // }
 }

@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   Future<bool> _isUserLoggedIn() async {
     const storage = FlutterSecureStorage();
-    String? token = await storage.read(key: 'authToken');
+    String? token = await storage.read(key: 'token');
     return token != null;
   }
 
@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
             theme: lightTheme,
             darkTheme: darkTheme,
             themeMode: ThemeMode.dark,
-            home: isLoggedIn ? const DashboardScreen() : const Login(),
+            home: isLoggedIn ? const SignUpPage() : const Login(),
           );
         }
       },
