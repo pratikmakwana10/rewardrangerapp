@@ -15,8 +15,9 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController(text: "dummy121@gmail.com");
-  final TextEditingController _passwordController = TextEditingController(text: "test123");
+  final TextEditingController _emailController =
+      TextEditingController(text: "flutterdev.pratik@gmail.com");
+  final TextEditingController _passwordController = TextEditingController(text: "Welcome@123");
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 

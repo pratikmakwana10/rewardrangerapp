@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rewardrangerapp/helper_function/api_service.dart';
 import 'package:rewardrangerapp/screen/login_screen.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:intl/intl.dart';
 
 import '../helper_function/utility.dart';
 
@@ -46,7 +48,7 @@ class _SignUpPageState extends State<SignUpPage> {
         "first_name": _firstNameController.text,
         "last_name": _lastNameController.text,
         "gender": _genderController.text,
-        "dob": _dobController.text,
+        "dob": DateFormat('yyyy-MM-dd').format(DateFormat('dd-MM-yyyy').parse(_dobController.text)),
         "city": _cityController.text,
       };
 
@@ -112,8 +114,63 @@ class _SignUpPageState extends State<SignUpPage> {
       ..showSnackBar(snackBar);
   }
 
-  // Example:
-  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Login()));
+  void _onDateSelected(DateRangePickerSelectionChangedArgs args) {
+    if (args.value is DateTime) {
+      final DateFormat formatter = DateFormat('dd-MM-yyyy');
+      final String formatted = formatter.format(args.value as DateTime);
+      setState(() {
+        _dobController.text = formatted;
+      });
+      Navigator.of(context).pop(); // Close the dialog when a date is selected
+    }
+  }
+
+  void _showDatePickerDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Date of Birth'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 300,
+            child: SfDateRangePicker(
+              selectionColor: Colors.deepOrange,
+              onSelectionChanged: _onDateSelected,
+              selectionMode: DateRangePickerSelectionMode.single,
+              initialSelectedDate: DateTime.now(),
+              headerStyle: const DateRangePickerHeaderStyle(
+                textStyle: TextStyle(
+                  color: Color.fromARGB(255, 128, 128, 138),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              monthViewSettings: const DateRangePickerMonthViewSettings(
+                viewHeaderStyle: DateRangePickerViewHeaderStyle(
+                  textStyle: TextStyle(
+                    color: Color.fromARGB(255, 149, 139, 139),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              selectionTextStyle: const TextStyle(color: Colors.white),
+              todayHighlightColor: const Color.fromARGB(255, 221, 183, 183),
+              backgroundColor: const Color.fromARGB(0, 255, 5, 5),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('CANCEL'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,13 +273,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 _buildTextFormField(
                   controller: _dobController,
-                  labelText: 'Date of Birth (DD-MM-YYYY)',
+                  labelText: 'Date of Birth',
                   keyboardType: TextInputType.datetime,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your date of birth';
                     }
                     return null;
+                  },
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    _showDatePickerDialog();
                   },
                 ),
                 _buildTextFormField(
@@ -272,6 +333,7 @@ class _SignUpPageState extends State<SignUpPage> {
     TextInputType? keyboardType,
     bool obscureText = false,
     required FormFieldValidator<String>? validator,
+    VoidCallback? onTap,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -295,6 +357,7 @@ class _SignUpPageState extends State<SignUpPage> {
         keyboardType: keyboardType,
         obscureText: obscureText,
         validator: validator,
+        onTap: onTap,
       ),
     );
   }
