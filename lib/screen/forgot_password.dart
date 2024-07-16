@@ -32,6 +32,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         if (result['status'] == true) {
           if (mounted) {
             DialogUtil.showSuccessSnackbar(context, 'Password reset email sent');
+            // Navigate to the login screen after showing the success message
+            await Future.delayed(const Duration(seconds: 2)); // Optional delay for visibility
+            Navigator.of(context).pop(); // Pop the current screen
           }
         } else {
           if (mounted) {

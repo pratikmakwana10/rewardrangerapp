@@ -1,14 +1,14 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:rewardrangerapp/firebase_options.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:rewardrangerapp/screen/dashboard_screen.dart';
 import 'package:rewardrangerapp/screen/logIn_screen.dart';
-import 'package:rewardrangerapp/service_locator.dart';
 import 'package:rewardrangerapp/screen/signup_screen.dart';
+import 'package:rewardrangerapp/service_locator.dart';
 import 'package:rewardrangerapp/helper_function/security_service.dart';
-import 'package:get_it/get_it.dart';
+import 'package:rewardrangerapp/firebase_options.dart';
 
 void main() async {
   setupLocator();
@@ -25,19 +25,30 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Start checking security status
-  final securityService = GetIt.instance<SecurityService>();
-  securityService.startSecurityCheck();
-
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  Future<bool> _isUserLoggedIn() async {
-    const storage = FlutterSecureStorage();
-    String? token = await storage.read(key: 'token');
-    return token != null;
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late SecurityService _securityService;
+
+  @override
+  void initState() {
+    super.initState();
+    _securityService = GetIt.instance<SecurityService>();
+    _securityService.startSecurityCheck(context);
+  }
+
+  @override
+  void dispose() {
+    _securityService.dispose();
+    super.dispose();
   }
 
   @override
@@ -72,14 +83,23 @@ class MyApp extends StatelessWidget {
         } else {
           final bool isLoggedIn = snapshot.data ?? false;
           return MaterialApp(
-            title: 'Reward Ranger App',
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            themeMode: ThemeMode.dark,
-            home: isLoggedIn ? const SignUpPage() : const Login(),
-          );
+              title: 'Reward Ranger App',
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              themeMode: ThemeMode.dark,
+              home:
+                  //  isLoggedIn ?
+                  const SignUpPage()
+              // : const Login(),
+              );
         }
       },
     );
+  }
+
+  Future<bool> _isUserLoggedIn() async {
+    const storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'token');
+    return token != null;
   }
 }
