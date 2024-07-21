@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rewardrangerapp/screen/signup_screen.dart';
+import 'package:rewardrangerapp/widget/elevated_button.dart';
 
 class SignUpOptionsScreen extends StatelessWidget {
   const SignUpOptionsScreen({super.key});
@@ -12,7 +13,7 @@ class SignUpOptionsScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            CustomElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -21,9 +22,9 @@ class SignUpOptionsScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('Sign Up with Phone'),
+              text: 'Sign Up with Phone',
             ),
-            ElevatedButton(
+            CustomElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -32,7 +33,7 @@ class SignUpOptionsScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('Sign Up with Email'),
+              text: 'Sign Up with Email',
             ),
           ],
         ),

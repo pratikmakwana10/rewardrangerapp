@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:rewardrangerapp/helper_function/api_service.dart';
 import 'package:rewardrangerapp/screen/login_screen.dart';
 import 'package:rewardrangerapp/screen/login_with_phone.dart';
+import 'package:rewardrangerapp/widget/elevated_button.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
@@ -236,14 +237,13 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ] else ...[
                 SizedBox(
-                  width: double.infinity, // Adjust width as needed
+                  width: double.infinity,
                   child: InternationalPhoneNumberInput(
                     onInputChanged: (PhoneNumber number) {
                       setState(() {
                         _phoneNumber = number;
                       });
                     },
-                    // Removed onInputValidated callback
                     selectorTextStyle: const TextStyle(color: Colors.white),
                     textFieldController: _phoneController,
                     inputDecoration: InputDecoration(
@@ -327,37 +327,36 @@ class _SignUpPageState extends State<SignUpPage> {
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: _submit,
-                child: const Text('Sign Up'),
+                text: 'Sign Up',
               ),
               const SizedBox(height: 20),
-              widget.isPhoneAuth
-                  ? const SizedBox()
-                  : TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Login(),
-                          ),
-                        );
-                      },
-                      child: const Text("Already have an account? Log in"),
-                    ),
-              !widget.isPhoneAuth
-                  ? const SizedBox()
-                  : TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginWithPhone(),
-                          ),
-                        );
-                      },
-                      child: const Text("Already have an account? Log in"),
-                    ),
+              if (!widget.isPhoneAuth) ...[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Login(),
+                      ),
+                    );
+                  },
+                  child: const Text("Already have an account? Log in"),
+                ),
+              ] else ...[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginWithPhone(),
+                      ),
+                    );
+                  },
+                  child: const Text("Already have an account? Log in"),
+                ),
+              ],
             ],
           ),
         ),
