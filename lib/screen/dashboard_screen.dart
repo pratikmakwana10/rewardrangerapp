@@ -15,6 +15,7 @@ import '../helper_function/utility.dart';
 import '../model/quote_motivation.dart';
 import '../model/sign_up_model.dart';
 import '../service_locator.dart';
+import '../widget/drawer_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -31,6 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   int _score = 0; // Local score variable
   String? _firstName = '';
   bool? _isVerified;
+  String? _lastname;
   late Timer _timer;
   double _currentIndex = 0;
   bool _firstAnimationComplete = false;
@@ -171,6 +173,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
           _score = userInfo.score; // Update the local score variable with the fetched score
           _firstName = userInfo.firstName;
           _isVerified = userInfo.isVerified;
+          _lastname = userInfo.lastName;
         });
       }
     } catch (e) {
@@ -290,30 +293,34 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     logger.w('$_isVerified}');
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-      // appBar: AppBar(
-      //   backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-      //   centerTitle: true,
-      //   title: Text(
-      //     'Welcome, $_firstName!',
-      //     style: const TextStyle(color: Color.fromARGB(255, 0, 234, 255)),
-      //   ),
-      // ),
+      drawerEdgeDragWidth: 100.0,
+      drawer: DrawerScreen(
+        firstName: _firstName ?? "",
+        lastName: _lastname ?? "",
+      ),
+      drawerEnableOpenDragGesture: true,
+      drawerScrimColor: Colors.black54,
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color.fromARGB(208, 6, 0, 42),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(223, 6, 0, 42),
+        centerTitle: true,
+        excludeHeaderSemantics: true,
+      ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 9, 81, 115), // start with black
-              Color.fromARGB(255, 57, 106, 252), // blue-ish
-              Color.fromARGB(255, 154, 17, 255), // purple-ish
-              Color.fromARGB(193, 220, 52, 2), // red
-            ],
-            stops: [0.0, 0.3, 0.6, 1.0], // begin with black and end with the blue-ish
-          ),
-        ),
+            // gradient: LinearGradient(
+            //   begin: Alignment.topCenter,
+            //   end: Alignment.bottomCenter,
+            //   colors: [
+            //     Color.fromARGB(255, 9, 81, 115), // start with black
+            //     Color.fromARGB(255, 57, 106, 252), // blue-ish
+            //     Color.fromARGB(255, 154, 17, 255), // purple-ish
+            //     Color.fromARGB(193, 220, 52, 2), // red
+            //   ],
+            //   stops: [0.0, 0.3, 0.6, 1.0], // begin with black and end with the blue-ish
+            // ),
+            ),
         child: Stack(
           children: [
             Padding(
@@ -322,9 +329,6 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      height: 70,
-                    ),
                     _firstName == ""
                         ? const SizedBox(
                             height: 35,
@@ -335,7 +339,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                               ColorizeAnimatedText(
                                 'Welcome, $_firstName!',
                                 textStyle: const TextStyle(
-                                  fontSize: 25.0,
+                                  fontSize: 30.0,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 colors: [
@@ -356,7 +360,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     ),
 
                     SizedBox(
-                      height: 100.0, // The height of the AnimatedTextKit widget
+                      height: 200.0, // The height of the AnimatedTextKit widget
                       child: DefaultTextStyle(
                         style: const TextStyle(
                           fontSize: 70.0,
@@ -382,41 +386,6 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                           },
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 130.0, // The height of the AnimatedTextKit widget
-                      child: DefaultTextStyle(
-                        style: const TextStyle(
-                          fontSize: 20.0,
-                          fontFamily: 'Canterbury',
-                        ),
-                        child: AnimatedTextKit(
-                          totalRepeatCount: 1,
-                          isRepeatingAnimation: false,
-                          animatedTexts: [
-                            TypewriterAnimatedText(
-                              textStyle: const TextStyle(color: Color.fromARGB(255, 0, 234, 255)),
-                              _quoteAnimationStarted
-                                  ? _currentQuote
-                                  : quotes[_currentIndex.toInt()],
-                              speed: const Duration(milliseconds: 100), // Adjust speed here
-                            ),
-                          ],
-                          onFinished: () {
-                            setState(() {
-                              _quoteAnimationStarted = true;
-                              _currentQuote = quotes[_currentIndex.toInt()]; // Update current quote
-                            });
-                          },
-                          onTap: () {
-                            print("Tap Event");
-                          },
-                        ),
-                      ),
-                    ), // Display the current score
-
-                    const SizedBox(
-                      height: 0,
                     ),
 
                     AnimatedBuilder(
@@ -448,17 +417,54 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       },
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 30,
                     ),
-                    const SizedBox(height: 50.0),
-                    const Spacer(),
+                    SizedBox(
+                      height: 130.0, // The height of the AnimatedTextKit widget
+                      child: DefaultTextStyle(
+                        style: const TextStyle(
+                          fontSize: 20.0,
+                          fontFamily: 'Canterbury',
+                        ),
+                        child: AnimatedTextKit(
+                          totalRepeatCount: 1,
+                          isRepeatingAnimation: false,
+                          animatedTexts: [
+                            TypewriterAnimatedText(
+                              textAlign: TextAlign.center, cursor: "  <",
+                              curve: Curves.easeInOutCubic,
+                              // curve: Curves.easeInOutCirc,
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 0, 234, 255),
+                              ),
+                              _quoteAnimationStarted
+                                  ? _currentQuote
+                                  : quotes[_currentIndex.toInt()],
+                              speed: const Duration(milliseconds: 100), // Adjust speed here
+                            ),
+                          ],
+                          onFinished: () {
+                            setState(() {
+                              _quoteAnimationStarted = true;
+                              _currentQuote = quotes[_currentIndex.toInt()]; // Update current quote
+                            });
+                          },
+                          onTap: () {
+                            print("Tap Event");
+                          },
+                        ),
+                      ),
+                    ), // Display the current score
+
+                    const SizedBox(height: 150.0),
+                    // const Spacer(),
                     SizedBox(
                       width: double.maxFinite,
                       child: ElevatedButton(
                         onPressed: _showRewardedAd,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 132, 228, 16), // Background color
+                          backgroundColor: const Color.fromRGBO(20, 34, 74, 1),
+                          // const Color.fromARGB(255, 132, 228, 16), // Background color
                           // minimumSize: const Size(200, 50), // Width and height
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8), // Horizontal padding
@@ -532,30 +538,6 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                           ),
                         ),
                       ),
-                    ),
-
-                    SizedBox(
-                      width: double.maxFinite,
-                      child: ElevatedButton(
-                        onPressed: _handleReferAndEarn,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 14, 134, 164), // Background color
-                          // minimumSize: const Size(200, 50), // Width and height
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          // Horizontal padding
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8), // Rounded corners
-                          ),
-                        ),
-                        child: const Text(
-                          'Refer & Earn',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 80,
                     ),
                   ],
                 ),

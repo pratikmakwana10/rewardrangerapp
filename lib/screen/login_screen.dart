@@ -77,93 +77,91 @@ class _LoginState extends State<Login> {
         backgroundColor: Colors.transparent, // Make the AppBar transparent
         elevation: 0, // Remove AppBar elevation
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 9, 81, 115), // start with black
-              Color.fromARGB(255, 57, 106, 252), // blue-ish
-              Color.fromARGB(255, 154, 17, 255), // purple-ish
-              Color.fromARGB(193, 220, 2, 133), // red
-            ],
-            stops: [0.0, 0.3, 0.6, 1], // gradient stops, with reduced red
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Please enter a valid email address';
+                        }
+                        return null;
                       },
                     ),
-                  ),
-                  obscureText: !_isPasswordVisible,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
+                    const SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: !_isPasswordVisible,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ForgotPassword()),
+                          );
+                        },
+                        child: const Text('Forgot your password?'),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16.0),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ForgotPassword()),
-                      );
-                    },
-                    child: const Text('Forgot your password?'),
-                  ),
-                ),
-                const SizedBox(height: 32.0),
-                _isLoading
-                    ? Center(
-                        child: LoadingAnimationWidget.discreteCircle(
-                            color: const Color.fromARGB(199, 23, 228, 255),
-                            size: 50,
-                            secondRingColor: const Color.fromARGB(255, 135, 206, 235),
-                            thirdRingColor: const Color.fromARGB(255, 240, 128, 128)),
-                      )
-                    : ElevatedButton(
+              ),
+              _isLoading
+                  ? Center(
+                      child: LoadingAnimationWidget.discreteCircle(
+                          color: const Color.fromARGB(199, 23, 228, 255),
+                          size: 50,
+                          secondRingColor: const Color.fromARGB(255, 135, 206, 235),
+                          thirdRingColor: const Color.fromARGB(255, 240, 128, 128)),
+                    )
+                  : SizedBox(
+                      height: 45,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(255, 10, 90, 211)),
                         onPressed: _login,
                         child: const Text('Login'),
                       ),
-              ],
-            ),
+                    ),
+              const SizedBox(height: 20.0), // Add some space below the button
+            ],
           ),
         ),
       ),

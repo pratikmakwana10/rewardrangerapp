@@ -1,10 +1,8 @@
 plugins {
     id "com.android.application"
-    // START: FlutterFire Configuration
-    id 'com.google.gms.google-services'
-    // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id 'com.google.gms.google-services'  // Firebase configuration
 }
 
 def localProperties = new Properties()
@@ -27,8 +25,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.rewardrangerapp"
-    compileSdkVersion 34  // Updated to 34
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -45,8 +42,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.rewardrangerapp"
-        minSdkVersion 21  // Min SDK version typically should be lower
-        targetSdkVersion 34  // Updated to 34
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -64,9 +61,9 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.google.android.gms:play-services-ads:21.0.0' // Add Google Mobile Ads dependency
-    implementation 'androidx.webkit:webkit:1.11.0'  // Ensure this is included if used
+    implementation 'com.google.android.gms:play-services-ads:21.0.0'
+    implementation 'androidx.webkit:webkit:1.11.0'
 }
 
-// Add the following at the bottom of the file to apply the Google Services plugin
+// Apply the Google Services plugin at the bottom of the file
 apply plugin: 'com.google.gms.google-services'

@@ -1,15 +1,17 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:rewardrangerapp/helper_function/api_service.dart';
 import 'package:rewardrangerapp/screen/login_screen.dart';
+import 'package:rewardrangerapp/screen/login_with_phone.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:intl/intl.dart';
-
-import '../helper_function/utility.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+  final bool isPhoneAuth;
+
+  const SignUpPage({Key? key, required this.isPhoneAuth}) : super(key: key);
 
   @override
   _SignUpPageState createState() => _SignUpPageState();
@@ -19,60 +21,70 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _genderController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
-  final ApiService _apiService = GetIt.instance<ApiService>();
+  final ApiService _apiService = ApiService();
+  final Logger logger = Logger();
+  String _selectedGender = '';
+  PhoneNumber _phoneNumber = PhoneNumber(isoCode: 'IN'); // Set India as the initial country
+  final TextEditingController _phoneController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _genderController.dispose();
     _dobController.dispose();
     _cityController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final Map<String, dynamic> userData = {
-        "email": _emailController.text,
-        "password": _passwordController.text,
+      Map<String, dynamic> userData = {
         "first_name": _firstNameController.text,
         "last_name": _lastNameController.text,
-        "gender": _genderController.text,
+        "gender": _selectedGender,
         "dob": DateFormat('yyyy-MM-dd').format(DateFormat('dd-MM-yyyy').parse(_dobController.text)),
         "city": _cityController.text,
       };
 
+      if (widget.isPhoneAuth) {
+        userData["phone"] = _phoneNumber.phoneNumber;
+      } else {
+        userData["email"] = _emailController.text;
+        userData["password"] = _passwordController.text;
+      }
+
       logger.i('Submitting data: $userData');
 
       try {
-        final response = await _apiService.signUp(userData);
+        final response = await (widget.isPhoneAuth
+            ? _apiService.signUpWithPhone(userData)
+            : _apiService.signUpWithEmail(userData));
         if (response['status'] == true) {
           logger.i('Sign up successful: ${response['message']}');
           _showSuccessSnackbar(response['message']);
-          // Navigate to the login page
           if (mounted) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Login()),
+              MaterialPageRoute(
+                builder: (context) => widget.isPhoneAuth
+                    ? const LoginWithPhone() // Redirect to LoginWithPhone if phone authentication
+                    : const Login(), // Redirect to Login if email authentication
+              ),
             );
           }
         } else {
-          logger.i('Sign up failed: ${response['message']}');
+          logger.e('Sign up failed: ${response['message']}');
           _showErrorSnackbar(response['message']);
         }
       } catch (e) {
-        logger.i('Sign up failed: $e');
-
+        logger.e('Sign up failed: $e');
         _showErrorSnackbar(e.toString());
       }
     } else {
@@ -121,7 +133,7 @@ class _SignUpPageState extends State<SignUpPage> {
       setState(() {
         _dobController.text = formatted;
       });
-      Navigator.of(context).pop(); // Close the dialog when a date is selected
+      Navigator.of(context).pop();
     }
   }
 
@@ -135,7 +147,7 @@ class _SignUpPageState extends State<SignUpPage> {
             width: double.maxFinite,
             height: 300,
             child: SfDateRangePicker(
-              selectionColor: Colors.deepOrange,
+              selectionColor: const Color.fromARGB(255, 10, 2, 160),
               onSelectionChanged: _onDateSelected,
               selectionMode: DateRangePickerSelectionMode.single,
               initialSelectedDate: DateTime.now(),
@@ -172,6 +184,12 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  void _selectGender(String gender) {
+    setState(() {
+      _selectedGender = gender;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,29 +200,14 @@ class _SignUpPageState extends State<SignUpPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 9, 81, 115),
-              Color.fromARGB(255, 57, 106, 252),
-              Color.fromARGB(255, 151, 8, 254),
-              Color.fromARGB(193, 110, 14, 166),
-            ],
-            stops: [0.0, 0.3, 0.6, 1.0],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: <Widget>[
-                const SizedBox(
-                  height: 45,
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: <Widget>[
+              const SizedBox(height: 45),
+              if (!widget.isPhoneAuth) ...[
                 _buildTextFormField(
                   controller: _emailController,
                   labelText: 'Email',
@@ -212,6 +215,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
+                    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email';
                     }
                     return null;
                   },
@@ -223,104 +228,137 @@ class _SignUpPageState extends State<SignUpPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
+                    } else if (value.length < 6) {
+                      return 'Password must be at least 6 characters long';
                     }
                     return null;
                   },
                 ),
-                _buildTextFormField(
-                  controller: _confirmPasswordController,
-                  labelText: 'Confirm Password',
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                ),
-                _buildTextFormField(
-                  controller: _firstNameController,
-                  labelText: 'First Name',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
-                    }
-                    return null;
-                  },
-                ),
-                _buildTextFormField(
-                  controller: _lastNameController,
-                  labelText: 'Last Name',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your last name';
-                    }
-                    return null;
-                  },
-                ),
-                _buildTextFormField(
-                  controller: _genderController,
-                  labelText: 'Gender (M/F)',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your gender';
-                    }
-                    return null;
-                  },
-                ),
-                _buildTextFormField(
-                  controller: _dobController,
-                  labelText: 'Date of Birth',
-                  keyboardType: TextInputType.datetime,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your date of birth';
-                    }
-                    return null;
-                  },
-                  onTap: () {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    _showDatePickerDialog();
-                  },
-                ),
-                _buildTextFormField(
-                  controller: _cityController,
-                  labelText: 'City',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your city';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                      foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                      backgroundColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.7), width: 2),
+              ] else ...[
+                SizedBox(
+                  width: double.infinity, // Adjust width as needed
+                  child: InternationalPhoneNumberInput(
+                    onInputChanged: (PhoneNumber number) {
+                      setState(() {
+                        _phoneNumber = number;
+                      });
+                    },
+                    // Removed onInputValidated callback
+                    selectorTextStyle: const TextStyle(color: Colors.white),
+                    textFieldController: _phoneController,
+                    inputDecoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 15)),
-                  child: const Text('Sign Up'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Navigate to login screen
-                    // Example:
-                    Navigator.pushReplacement(
-                        context, MaterialPageRoute(builder: (context) => const Login()));
-                  },
-                  child: const Text('Already have an account? Log in',
-                      style: TextStyle(color: Colors.white)),
+                      labelText: 'Phone Number',
+                    ),
+                    selectorConfig: const SelectorConfig(
+                      selectorType: PhoneInputSelectorType.DROPDOWN,
+                    ),
+                    initialValue: _phoneNumber,
+                    formatInput: false,
+                    keyboardType: TextInputType.phone,
+                  ),
                 ),
               ],
-            ),
+              _buildTextFormField(
+                controller: _firstNameController,
+                labelText: 'First Name',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your first name';
+                  }
+                  return null;
+                },
+              ),
+              _buildTextFormField(
+                controller: _lastNameController,
+                labelText: 'Last Name',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your last name';
+                  }
+                  return null;
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _buildGenderButton(
+                      gender: 'M',
+                      icon: Icons.male,
+                      label: 'Male',
+                    ),
+                    _buildGenderButton(
+                      gender: 'F',
+                      icon: Icons.female,
+                      label: 'Female',
+                    ),
+                    _buildGenderButton(
+                      gender: 'O',
+                      icon: Icons.transgender,
+                      label: 'Other',
+                    ),
+                  ],
+                ),
+              ),
+              _buildTextFormField(
+                controller: _dobController,
+                labelText: 'Date of Birth',
+                readOnly: true,
+                onTap: _showDatePickerDialog,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select your date of birth';
+                  }
+                  return null;
+                },
+              ),
+              _buildTextFormField(
+                controller: _cityController,
+                labelText: 'City',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your city';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text('Sign Up'),
+              ),
+              const SizedBox(height: 20),
+              widget.isPhoneAuth
+                  ? const SizedBox()
+                  : TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Login(),
+                          ),
+                        );
+                      },
+                      child: const Text("Already have an account? Log in"),
+                    ),
+              !widget.isPhoneAuth
+                  ? const SizedBox()
+                  : TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginWithPhone(),
+                          ),
+                        );
+                      },
+                      child: const Text("Already have an account? Log in"),
+                    ),
+            ],
           ),
         ),
       ),
@@ -332,32 +370,43 @@ class _SignUpPageState extends State<SignUpPage> {
     required String labelText,
     TextInputType? keyboardType,
     bool obscureText = false,
-    required FormFieldValidator<String>? validator,
-    VoidCallback? onTap,
+    bool readOnly = false,
+    Function()? onTap,
+    String? Function(String?)? validator,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         controller: controller,
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle:
-              const TextStyle(color: Color.fromRGBO(255, 255, 255, 0.7)), // White with 70% opacity
-          enabledBorder: const OutlineInputBorder(
-            borderSide:
-                BorderSide(color: Color.fromRGBO(255, 255, 255, 0.7)), // White with 70% opacity
-            borderRadius: BorderRadius.all(Radius.circular(8)),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white), // White color for focused border
-            borderRadius: BorderRadius.all(Radius.circular(8)),
-          ),
-        ),
-        style: const TextStyle(color: Colors.white),
         keyboardType: keyboardType,
         obscureText: obscureText,
-        validator: validator,
+        readOnly: readOnly,
         onTap: onTap,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          labelText: labelText,
+        ),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _buildGenderButton({
+    required String gender,
+    required IconData icon,
+    required String label,
+  }) {
+    return ElevatedButton(
+      onPressed: () => _selectGender(gender),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, color: _selectedGender == gender ? Colors.blue : Colors.grey),
+          Text(label,
+              style: TextStyle(color: _selectedGender == gender ? Colors.blue : Colors.grey)),
+        ],
       ),
     );
   }

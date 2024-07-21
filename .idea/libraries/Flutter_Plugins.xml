@@ -21,6 +21,8 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_messaging-14.7.19" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_windows-2.2.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/libphonenumber_web-0.3.2" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/libphonenumber_plugin-0.3.3" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

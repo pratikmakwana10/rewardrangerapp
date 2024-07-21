@@ -59,66 +59,50 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 9, 81, 115),
-              Color.fromARGB(255, 57, 106, 252),
-              Color.fromARGB(255, 151, 8, 254),
-              Color.fromARGB(193, 140, 8, 164),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Enter your email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 32.0),
+              SizedBox(
+                width: double.infinity, // Full width button
+                child: OutlinedButton(
+                  onPressed: _resetPassword,
+                  style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.blue), // Border color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // Border radius
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 15)),
+                  child: const Text(
+                    'Reset Password',
+                    style: TextStyle(fontSize: 20, letterSpacing: 1.5, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ),
             ],
-            stops: [0.0, 0.3, 0.6, 1.0],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Enter your email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 32.0),
-                SizedBox(
-                  width: double.infinity, // Full width button
-                  child: OutlinedButton(
-                    onPressed: _resetPassword,
-                    style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.blue), // Border color
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0), // Border radius
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15)),
-                    child: const Text(
-                      'Reset Password',
-                      style:
-                          TextStyle(fontSize: 20, letterSpacing: 1.5, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
