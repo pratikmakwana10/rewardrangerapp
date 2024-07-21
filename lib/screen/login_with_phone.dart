@@ -3,7 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rewardrangerapp/helper_function/utility.dart';
 import 'package:rewardrangerapp/screen/dashboard_screen.dart';
 import 'package:rewardrangerapp/screen/otp_veridication.dart';
-import '../widget/text_field.dart'; // Import if not already added
+import 'package:rewardrangerapp/widget/elevated_button.dart';
+import '../widget/text_field.dart'; // Import your text field widget
 
 class LoginWithPhone extends StatefulWidget {
   const LoginWithPhone({super.key});
@@ -98,12 +99,9 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            CustomElevatedButton(
               onPressed: _login,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50), // Full width
-              ),
-              child: const Text('Login'),
+              text: 'Login',
             ),
           ],
         ),
