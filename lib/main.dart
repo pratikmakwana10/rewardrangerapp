@@ -3,10 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:rewardrangerapp/screen/dashboard_screen.dart';
-import 'package:rewardrangerapp/screen/logIn_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:rewardrangerapp/screen/signup_option.dart';
-import 'package:rewardrangerapp/screen/signup_screen.dart';
 import 'package:rewardrangerapp/service_locator.dart';
 import 'package:rewardrangerapp/helper_function/security_service.dart';
 import 'package:rewardrangerapp/firebase_options.dart';
@@ -98,11 +96,19 @@ class _MyAppState extends State<MyApp> {
           );
         } else {
           final bool isLoggedIn = snapshot.data ?? false;
-          return MaterialApp(
-              title: 'Reward Ranger App',
-              theme: darkTheme,
-              themeMode: ThemeMode.dark,
-              home: const SignUpOptionsScreen());
+          return ScreenUtilInit(
+            designSize: Size(375, 812), // Adjust this based on your design
+            minTextAdapt: true,
+            splitScreenMode: true,
+            builder: (context, child) {
+              return MaterialApp(
+                title: 'Reward Ranger',
+                theme: darkTheme,
+                themeMode: ThemeMode.dark,
+                home: const SignUpOptionsScreen(),
+              );
+            },
+          );
         }
       },
     );

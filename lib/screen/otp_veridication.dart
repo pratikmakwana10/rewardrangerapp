@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:rewardrangerapp/screen/dashboard_screen.dart';
 import '../widget/text_field.dart'; // Import if not already added
 
@@ -7,8 +8,11 @@ class EnterOtpScreen extends StatefulWidget {
   final String verificationId;
   final String phoneNumber;
 
-  const EnterOtpScreen(
-      {required this.verificationId, required this.phoneNumber, super.key});
+  const EnterOtpScreen({
+    required this.verificationId,
+    required this.phoneNumber,
+    super.key,
+  });
 
   @override
   State<EnterOtpScreen> createState() => _EnterOtpScreenState();
@@ -66,7 +70,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.sp), // Responsive padding
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -75,11 +79,12 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
               labelText: 'OTP',
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h), // Responsive height
             ElevatedButton(
               onPressed: _verifyOtp,
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50), // Full width
+                minimumSize: Size(
+                    double.infinity, 50.h), // Full width, responsive height
               ),
               child: const Text('Verify OTP'),
             ),
@@ -99,7 +104,8 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
     String? Function(String?)? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding:
+          EdgeInsets.symmetric(vertical: 8.0.h), // Responsive vertical padding
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
@@ -108,7 +114,8 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
         onTap: onTap,
         decoration: InputDecoration(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius:
+                BorderRadius.circular(10.0.sp), // Responsive border radius
           ),
           labelText: labelText,
         ),

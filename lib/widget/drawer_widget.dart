@@ -1,51 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:rewardrangerapp/screen/signup_option.dart';
-
 import '../screen/contact_support.dart';
 
 class DrawerScreen extends StatelessWidget {
   final String firstName;
   final String lastName;
+
   const DrawerScreen({
-    super.key,
+    Key? key,
     required this.firstName,
     required this.lastName,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: const Color.fromARGB(223, 6, 0, 42),
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.0.sp), // Responsive padding
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(
-            height: 50,
-          ),
+          SizedBox(height: 50.h), // Responsive height
           CircleAvatar(
-            radius: 50,
-            backgroundColor: const Color.fromARGB(
-                99, 27, 9, 184), // Background color of the avatar
+            radius: 50.sp, // Responsive radius
+            backgroundColor: const Color.fromARGB(99, 27, 9, 184),
             child: Text(
-              firstName.isNotEmpty
-                  ? firstName[0].toUpperCase()
-                  : '', // First letter of the first name
-              style: const TextStyle(
+              firstName.isNotEmpty ? firstName[0].toUpperCase() : '',
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 50,
+                fontSize: 50.sp, // Responsive font size
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h), // Responsive height
           Text(
             firstName,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22.sp, // Responsive font size
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h), // Responsive height
           const Text(
             'user@example.com',
             style: TextStyle(color: Colors.white70, fontSize: 16),
@@ -57,7 +56,7 @@ class DrawerScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const ContactSupport()),
             );
           }),
-          const SizedBox(height: 30),
+          SizedBox(height: 30.h), // Responsive height
           _buildListTile(Icons.person_add, 'Refer and Earn', () {
             // Handle refer and earn action
           }),
@@ -70,10 +69,8 @@ class DrawerScreen extends StatelessWidget {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        const SignUpOptionsScreen()), // Replace with your Dashboard screen
-                (Route<dynamic> route) =>
-                    false, // This will remove all previous routes
+                    builder: (context) => const SignUpOptionsScreen()),
+                (Route<dynamic> route) => false,
               );
             },
           ),
@@ -86,28 +83,30 @@ class DrawerScreen extends StatelessWidget {
       {Color? textColor}) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(30.sp), // Responsive border radius
         border: Border.all(
-            color: const Color.fromARGB(255, 0, 234, 255), width: 0.7),
+          color: const Color.fromARGB(255, 0, 234, 255),
+          width: 0.7.sp, // Responsive border width
+        ),
       ),
       child: ListTile(
         leading: Padding(
-          padding: const EdgeInsets.only(left: 25),
+          padding: EdgeInsets.only(left: 25.sp), // Responsive padding
           child: CircleAvatar(
             backgroundColor: Colors.transparent,
             child: Icon(
               icon,
               color: const Color.fromARGB(255, 0, 234, 255),
-              size: 30,
+              size: 30.sp, // Responsive icon size
             ),
           ),
         ),
         title: Padding(
-          padding: const EdgeInsets.only(left: 45),
+          padding: EdgeInsets.only(left: 45.sp), // Responsive padding
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 18.sp, // Responsive font size
               color: textColor ?? const Color.fromARGB(255, 0, 234, 255),
               letterSpacing: 2,
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import '../helper_function/api_service.dart'; // Import your ApiService
 import '../helper_function/dialog.dart';
 import '../widget/text_field.dart';
@@ -8,6 +9,10 @@ class ContactSupport extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize ScreenUtil
+    ScreenUtil.init(context,
+        designSize: const Size(375, 812), minTextAdapt: true);
+
     final TextEditingController controller = TextEditingController();
     final ApiService apiService = ApiService(); // Instantiate your ApiService
 
@@ -23,9 +28,9 @@ class ContactSupport extends StatelessWidget {
         final response = await apiService.userQuery(controller.text);
         // Handle the response as needed (e.g., show result in UI)
         DialogUtil.showSuccessSnackbar(context, 'User query successful');
-        // Optionally, you can navigate to another screen or update state
       } catch (e) {
-        DialogUtil.showErrorSnackbar(context, 'Failed to perform user query: $e');
+        DialogUtil.showErrorSnackbar(
+            context, 'Failed to perform user query: $e');
       }
     }
 
@@ -39,9 +44,9 @@ class ContactSupport extends StatelessWidget {
           Expanded(
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.w), // Use ScreenUtil for padding
                 child: SizedBox(
-                  height: 300,
+                  height: 300.h, // Use ScreenUtil for height
                   child: CustomTextField(
                     controller: controller,
                     labelText: 'Enter your message',
@@ -58,12 +63,15 @@ class ContactSupport extends StatelessWidget {
           ),
           Container(
             alignment: Alignment.bottomCenter,
-            padding: const EdgeInsets.only(bottom: 20.0),
+            padding:
+                EdgeInsets.only(bottom: 20.h), // Use ScreenUtil for padding
             child: SizedBox(
               width: double.maxFinite,
               child: ElevatedButton(
                 onPressed: handleSubmit, // Call handleSubmit function
-                child: const Text('Submit'),
+                child: Text('Submit',
+                    style: TextStyle(
+                        fontSize: 16.sp)), // Use ScreenUtil for text size
               ),
             ),
           ),

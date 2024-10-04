@@ -1,5 +1,6 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:rewardrangerapp/helper_function/api_service.dart';
@@ -29,8 +30,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final ApiService _apiService = ApiService();
   final Logger logger = Logger();
   String _selectedGender = '';
-  PhoneNumber _phoneNumber =
-      PhoneNumber(isoCode: 'IN'); // Set India as the initial country
+  PhoneNumber _phoneNumber = PhoneNumber(isoCode: 'IN');
   final TextEditingController _phoneController = TextEditingController();
 
   @override
@@ -58,6 +58,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
       if (widget.isPhoneAuth) {
         userData["phone"] = _phoneNumber.phoneNumber;
+        logger.w("Phone NUM: ${_phoneNumber.phoneNumber}");
       } else {
         userData["email"] = _emailController.text;
         userData["password"] = _passwordController.text;
@@ -69,6 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
         final response = await (widget.isPhoneAuth
             ? _apiService.signUpWithPhone(userData)
             : _apiService.signUpWithEmail(userData));
+
         if (response['status'] == true) {
           logger.i('Sign up successful: ${response['message']}');
           _showSuccessSnackbar(response['message']);
@@ -76,9 +78,8 @@ class _SignUpPageState extends State<SignUpPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => widget.isPhoneAuth
-                    ? const LoginWithPhone() // Redirect to LoginWithPhone if phone authentication
-                    : const Login(), // Redirect to Login if email authentication
+                builder: (context) =>
+                    widget.isPhoneAuth ? const LoginWithPhone() : const Login(),
               ),
             );
           }
@@ -148,7 +149,7 @@ class _SignUpPageState extends State<SignUpPage> {
           title: const Text('Select Date of Birth'),
           content: SizedBox(
             width: double.maxFinite,
-            height: 300,
+            height: 300.h,
             child: SfDateRangePicker(
               selectionColor: const Color.fromARGB(255, 10, 2, 160),
               onSelectionChanged: _onDateSelected,
@@ -204,13 +205,13 @@ class _SignUpPageState extends State<SignUpPage> {
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.sp),
         child: Form(
           key: _formKey,
           child: ListView(
             shrinkWrap: true,
             children: <Widget>[
-              const SizedBox(height: 100),
+              SizedBox(height: 50.h),
               if (!widget.isPhoneAuth) ...[
                 _buildTextFormField(
                   controller: _emailController,
@@ -247,20 +248,21 @@ class _SignUpPageState extends State<SignUpPage> {
                       setState(() {
                         _phoneNumber = number;
                       });
+                      // logger.f(number);
+                      // logger.f(_phoneNumber);
                     },
                     selectorTextStyle: const TextStyle(color: Colors.white),
                     textFieldController: _phoneController,
                     inputDecoration: InputDecoration(
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                        borderRadius: BorderRadius.circular(10.0.sp),
                       ),
                       labelText: 'Phone Number',
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 20.0),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20.0.sp),
                       hintText: 'Enter your phone number',
                       hintStyle: const TextStyle(color: Colors.grey),
                     ),
-                    selectorConfig: SelectorConfig(
+                    selectorConfig: const SelectorConfig(
                       selectorType: PhoneInputSelectorType.DROPDOWN,
                       showFlags: true,
                       useEmoji: true,
@@ -292,7 +294,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 },
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                padding: EdgeInsets.symmetric(vertical: 8.0.sp),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
@@ -331,12 +333,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 90),
+              SizedBox(height: 50.h),
               CustomElevatedButton(
                 onPressed: _submit,
                 text: 'Sign Up',
               ),
-              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.pushReplacement(
@@ -370,7 +371,7 @@ class _SignUpPageState extends State<SignUpPage> {
     String? Function(String?)? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 8.0.h),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
@@ -379,7 +380,7 @@ class _SignUpPageState extends State<SignUpPage> {
         onTap: onTap,
         decoration: InputDecoration(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(10.0.r),
           ),
           labelText: labelText,
         ),
@@ -400,9 +401,7 @@ class _SignUpPageState extends State<SignUpPage> {
         children: <Widget>[
           Icon(icon,
               color: _selectedGender == gender ? Colors.blue : Colors.grey),
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
           Text(label,
               style: TextStyle(
                   color:

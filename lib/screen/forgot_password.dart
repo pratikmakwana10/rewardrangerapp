@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rewardrangerapp/helper_function/dialog.dart';
 import 'package:rewardrangerapp/widget/elevated_button.dart';
 import '../helper_function/api_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -65,7 +66,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.sp), // Responsive padding
         child: Form(
           key: _formKey,
           child: Column(
@@ -77,7 +78,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 decoration: InputDecoration(
                   labelText: 'Enter your email',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(
+                        8.0.sp), // Responsive border radius
                   ),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -91,8 +93,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   return null;
                 },
               ),
-              const SizedBox(height: 100.0),
-              // Spacer(),
+              SizedBox(height: 30.h), // Responsive height
               SizedBox(
                 width: double.infinity, // Full width button
                 child: CustomElevatedButton(

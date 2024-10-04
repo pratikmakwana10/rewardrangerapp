@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:rewardrangerapp/helper_function/utility.dart';
 import 'package:rewardrangerapp/screen/dashboard_screen.dart';
@@ -93,7 +94,7 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.sp), // Responsive padding
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -105,14 +106,17 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
                     _phoneNumber = number;
                   });
                 },
-                selectorTextStyle: const TextStyle(color: Colors.white),
+                selectorTextStyle: const TextStyle(
+                    color: Colors.black), // Change color for visibility
                 textFieldController: _phoneController,
                 inputDecoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(
+                        10.0.sp), // Responsive border radius
                   ),
                   labelText: 'Phone Number',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 20.0.sp), // Responsive padding
                   hintText: 'Enter your phone number',
                   hintStyle: const TextStyle(color: Colors.grey),
                 ),
@@ -126,10 +130,15 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
                 keyboardType: TextInputType.phone,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h), // Responsive height
             CustomElevatedButton(
               onPressed: _login,
               text: 'Login',
+              // If your CustomElevatedButton takes width and height parameters,
+              // you can set them here to be responsive too.
+              // For example:
+              // width: double.infinity,
+              // height: 50.h,
             ),
           ],
         ),
