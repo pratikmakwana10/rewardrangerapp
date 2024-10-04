@@ -7,7 +7,8 @@ class EnterOtpScreen extends StatefulWidget {
   final String verificationId;
   final String phoneNumber;
 
-  const EnterOtpScreen({required this.verificationId, required this.phoneNumber, super.key});
+  const EnterOtpScreen(
+      {required this.verificationId, required this.phoneNumber, super.key});
 
   @override
   State<EnterOtpScreen> createState() => _EnterOtpScreenState();
@@ -40,7 +41,8 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
         smsCode: otp,
       );
 
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
       if (userCredential.user != null) {
         // Navigate to dashboard or home screen on successful sign-in
         Navigator.pushReplacement(
@@ -68,7 +70,7 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CustomTextField(
+            _buildTextFormField(
               controller: _otpController,
               labelText: 'OTP',
               keyboardType: TextInputType.number,
@@ -83,6 +85,34 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    bool readOnly = false,
+    Function()? onTap,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        readOnly: readOnly,
+        onTap: onTap,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          labelText: labelText,
+        ),
+        validator: validator,
       ),
     );
   }

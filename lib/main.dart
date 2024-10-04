@@ -57,19 +57,28 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     const Color scaffoldBackgroundColor = Color.fromARGB(223, 6, 0, 42);
 
-    final ThemeData lightTheme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 114, 252)),
-      useMaterial3: true,
-      scaffoldBackgroundColor: scaffoldBackgroundColor,
-    );
-
     final ThemeData darkTheme = ThemeData(
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromRGBO(20, 34, 74, 1),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 8), // Horizontal padding
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8), // Rounded corners
+          ),
+        ),
+      ),
       brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color.fromARGB(255, 8, 161, 182),
+        seedColor: const Color.fromARGB(255, 255, 255, 255),
         brightness: Brightness.dark,
         onPrimary: scaffoldBackgroundColor,
       ),
+      appBarTheme: const AppBarTheme(
+          backgroundColor: scaffoldBackgroundColor,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+              fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1)),
       useMaterial3: true,
       scaffoldBackgroundColor: scaffoldBackgroundColor,
     );

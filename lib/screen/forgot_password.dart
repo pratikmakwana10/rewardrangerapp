@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rewardrangerapp/helper_function/dialog.dart';
+import 'package:rewardrangerapp/widget/elevated_button.dart';
 import '../helper_function/api_service.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -14,7 +15,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
 
-  final _apiService = GetIt.instance<ApiService>(); // Get the ApiService instance
+  final _apiService =
+      GetIt.instance<ApiService>(); // Get the ApiService instance
 
   @override
   void dispose() {
@@ -31,14 +33,17 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         final result = await _apiService.forgotPassword(email);
         if (result['status'] == true) {
           if (mounted) {
-            DialogUtil.showSuccessSnackbar(context, 'Password reset email sent');
+            DialogUtil.showSuccessSnackbar(
+                context, 'Password reset email sent');
             // Navigate to the login screen after showing the success message
-            await Future.delayed(const Duration(seconds: 2)); // Optional delay for visibility
+            await Future.delayed(
+                const Duration(seconds: 2)); // Optional delay for visibility
             Navigator.of(context).pop(); // Pop the current screen
           }
         } else {
           if (mounted) {
-            DialogUtil.showErrorSnackbar(context, 'Failed to send password reset email');
+            DialogUtil.showErrorSnackbar(
+                context, 'Failed to send password reset email');
           }
         }
       } catch (e) {
@@ -65,6 +70,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextFormField(
                 controller: _emailController,
@@ -85,21 +91,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   return null;
                 },
               ),
-              const SizedBox(height: 32.0),
+              const SizedBox(height: 100.0),
+              // Spacer(),
               SizedBox(
                 width: double.infinity, // Full width button
-                child: OutlinedButton(
+                child: CustomElevatedButton(
                   onPressed: _resetPassword,
-                  style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.blue), // Border color
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // Border radius
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 15)),
-                  child: const Text(
-                    'Reset Password',
-                    style: TextStyle(fontSize: 20, letterSpacing: 1.5, fontWeight: FontWeight.w500),
-                  ),
+                  text: 'Reset Password',
                 ),
               ),
             ],

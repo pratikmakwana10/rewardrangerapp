@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rewardrangerapp/screen/signup_option.dart';
 
 import '../screen/contact_support.dart';
 
@@ -25,7 +26,8 @@ class DrawerScreen extends StatelessWidget {
           ),
           CircleAvatar(
             radius: 50,
-            backgroundColor: const Color.fromARGB(99, 27, 9, 184), // Background color of the avatar
+            backgroundColor: const Color.fromARGB(
+                99, 27, 9, 184), // Background color of the avatar
             child: Text(
               firstName.isNotEmpty
                   ? firstName[0].toUpperCase()
@@ -40,7 +42,8 @@ class DrawerScreen extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             firstName,
-            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           const Text(
@@ -59,19 +62,33 @@ class DrawerScreen extends StatelessWidget {
             // Handle refer and earn action
           }),
           const Spacer(),
-          _buildListTile(Icons.logout_rounded, 'Log Out', () {
-            // Handle logout action
-          }, textColor: const Color.fromARGB(255, 0, 174, 255)),
+          _buildListTile(
+            Icons.logout_rounded,
+            'Log Out',
+            () {
+              // Handle logout action
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        const SignUpOptionsScreen()), // Replace with your Dashboard screen
+                (Route<dynamic> route) =>
+                    false, // This will remove all previous routes
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildListTile(IconData icon, String text, void Function()? onTap, {Color? textColor}) {
+  Widget _buildListTile(IconData icon, String text, void Function()? onTap,
+      {Color? textColor}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color.fromARGB(255, 0, 234, 255), width: 0.7),
+        border: Border.all(
+            color: const Color.fromARGB(255, 0, 234, 255), width: 0.7),
       ),
       child: ListTile(
         leading: Padding(

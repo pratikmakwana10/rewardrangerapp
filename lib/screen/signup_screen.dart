@@ -29,7 +29,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final ApiService _apiService = ApiService();
   final Logger logger = Logger();
   String _selectedGender = '';
-  PhoneNumber _phoneNumber = PhoneNumber(isoCode: 'IN'); // Set India as the initial country
+  PhoneNumber _phoneNumber =
+      PhoneNumber(isoCode: 'IN'); // Set India as the initial country
   final TextEditingController _phoneController = TextEditingController();
 
   @override
@@ -50,7 +51,8 @@ class _SignUpPageState extends State<SignUpPage> {
         "first_name": _firstNameController.text,
         "last_name": _lastNameController.text,
         "gender": _selectedGender,
-        "dob": DateFormat('yyyy-MM-dd').format(DateFormat('dd-MM-yyyy').parse(_dobController.text)),
+        "dob": DateFormat('yyyy-MM-dd')
+            .format(DateFormat('dd-MM-yyyy').parse(_dobController.text)),
         "city": _cityController.text,
       };
 
@@ -196,7 +198,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Sign Up', style: TextStyle(color: Colors.white)),
+        title: const Text('Sign Up'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -206,8 +208,9 @@ class _SignUpPageState extends State<SignUpPage> {
         child: Form(
           key: _formKey,
           child: ListView(
+            shrinkWrap: true,
             children: <Widget>[
-              const SizedBox(height: 45),
+              const SizedBox(height: 100),
               if (!widget.isPhoneAuth) ...[
                 _buildTextFormField(
                   controller: _emailController,
@@ -216,7 +219,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
-                    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                        .hasMatch(value)) {
                       return 'Please enter a valid email';
                     }
                     return null;
@@ -251,9 +255,15 @@ class _SignUpPageState extends State<SignUpPage> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       labelText: 'Phone Number',
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 20.0),
+                      hintText: 'Enter your phone number',
+                      hintStyle: const TextStyle(color: Colors.grey),
                     ),
-                    selectorConfig: const SelectorConfig(
+                    selectorConfig: SelectorConfig(
                       selectorType: PhoneInputSelectorType.DROPDOWN,
+                      showFlags: true,
+                      useEmoji: true,
                     ),
                     initialValue: _phoneNumber,
                     formatInput: false,
@@ -296,11 +306,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       icon: Icons.female,
                       label: 'Female',
                     ),
-                    _buildGenderButton(
-                      gender: 'O',
-                      icon: Icons.transgender,
-                      label: 'Other',
-                    ),
                   ],
                 ),
               ),
@@ -326,37 +331,28 @@ class _SignUpPageState extends State<SignUpPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 90),
               CustomElevatedButton(
                 onPressed: _submit,
                 text: 'Sign Up',
               ),
               const SizedBox(height: 20),
-              if (!widget.isPhoneAuth) ...[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Login(),
-                      ),
-                    );
-                  },
-                  child: const Text("Already have an account? Log in"),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => widget.isPhoneAuth
+                          ? const LoginWithPhone()
+                          : const Login(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Already have an account? Log in",
+                  style: TextStyle(fontSize: 10),
                 ),
-              ] else ...[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginWithPhone(),
-                      ),
-                    );
-                  },
-                  child: const Text("Already have an account? Log in"),
-                ),
-              ],
+              ),
             ],
           ),
         ),
@@ -399,12 +395,18 @@ class _SignUpPageState extends State<SignUpPage> {
   }) {
     return ElevatedButton(
       onPressed: () => _selectGender(gender),
-      child: Column(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(icon, color: _selectedGender == gender ? Colors.blue : Colors.grey),
+          Icon(icon,
+              color: _selectedGender == gender ? Colors.blue : Colors.grey),
+          const SizedBox(
+            width: 10,
+          ),
           Text(label,
-              style: TextStyle(color: _selectedGender == gender ? Colors.blue : Colors.grey)),
+              style: TextStyle(
+                  color:
+                      _selectedGender == gender ? Colors.blue : Colors.grey)),
         ],
       ),
     );
