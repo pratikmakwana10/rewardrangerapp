@@ -24,7 +24,8 @@ class DashboardScreen extends StatefulWidget {
   _DashboardScreenState createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin {
+class _DashboardScreenState extends State<DashboardScreen>
+    with SingleTickerProviderStateMixin {
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
   late RewardedAd _rewardedAd;
@@ -60,7 +61,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
     // Fetch user info after login
 
     // Initialize animation controller
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
 
     // Initialize scale animation
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.5).animate(
@@ -135,7 +137,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
         });
         // Show success snackbar only if the widget is still mounted
         if (mounted) {
-          DialogUtil.showSuccessSnackbar(context, 'Verification Link has been sent to your email');
+          DialogUtil.showSuccessSnackbar(
+              context, 'Verification Link has been sent to your email');
         }
       } else {
         // Show error snackbar only if the widget is still mounted
@@ -147,14 +150,16 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
       logger.e('Failed to verify email: $e');
       // Show error snackbar only if the widget is still mounted
       if (mounted) {
-        DialogUtil.showErrorSnackbar(context, 'An error occurred while verifying email');
+        DialogUtil.showErrorSnackbar(
+            context, 'An error occurred while verifying email');
       }
     }
   }
 
   void _nextQuote() {
     setState(() {
-      _currentIndex = Random().nextInt(quotes.length).toDouble(); // Get a random index
+      _currentIndex =
+          Random().nextInt(quotes.length).toDouble(); // Get a random index
     });
   }
 
@@ -170,7 +175,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
       if (userInfo != null) {
         setState(() {
           _userInfo = userInfo;
-          _score = userInfo.score; // Update the local score variable with the fetched score
+          _score = userInfo
+              .score; // Update the local score variable with the fetched score
           _firstName = userInfo.firstName;
           _isVerified = userInfo.isVerified;
           _lastname = userInfo.lastName;
@@ -183,7 +189,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // Replace with your ad unit ID
+      adUnitId:
+          'ca-app-pub-3940256099942544/6300978111', // Replace with your ad unit ID
       request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
@@ -205,7 +212,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
   void _loadRewardedAd() {
     RewardedAd.load(
-      adUnitId: 'ca-app-pub-3940256099942544/5224354917', // Replace with your ad unit ID
+      adUnitId:
+          'ca-app-pub-3940256099942544/5224354917', // Replace with your ad unit ID
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (RewardedAd ad) {
@@ -318,7 +326,12 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
             //     Color.fromARGB(255, 154, 17, 255), // purple-ish
             //     Color.fromARGB(193, 220, 52, 2), // red
             //   ],
-            //   stops: [0.0, 0.3, 0.6, 1.0], // begin with black and end with the blue-ish
+            //   stops: [
+            //     0.0,
+            //     0.3,
+            //     0.6,
+            //     1.0
+            //   ], // begin with black and end with the blue-ish
             // ),
             ),
         child: Stack(
@@ -350,7 +363,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                                   Colors.red,
                                   Colors.deepPurple
                                 ],
-                                speed: const Duration(milliseconds: 600), // Adjust duration here
+                                speed: const Duration(
+                                    milliseconds: 600), // Adjust duration here
                               ),
                             ],
                             repeatForever: true,
@@ -440,13 +454,15 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                               _quoteAnimationStarted
                                   ? _currentQuote
                                   : quotes[_currentIndex.toInt()],
-                              speed: const Duration(milliseconds: 100), // Adjust speed here
+                              speed: const Duration(
+                                  milliseconds: 100), // Adjust speed here
                             ),
                           ],
                           onFinished: () {
                             setState(() {
                               _quoteAnimationStarted = true;
-                              _currentQuote = quotes[_currentIndex.toInt()]; // Update current quote
+                              _currentQuote = quotes[_currentIndex
+                                  .toInt()]; // Update current quote
                             });
                           },
                           onTap: () {
@@ -456,20 +472,18 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       ),
                     ), // Display the current score
 
-                    const SizedBox(height: 150.0),
-                    // const Spacer(),
                     SizedBox(
                       width: double.maxFinite,
                       child: ElevatedButton(
                         onPressed: _showRewardedAd,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(20, 34, 74, 1),
-                          // const Color.fromARGB(255, 132, 228, 16), // Background color
-                          // minimumSize: const Size(200, 50), // Width and height
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8), // Horizontal padding
+                              horizontal: 16,
+                              vertical: 8), // Horizontal padding
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8), // Rounded corners
+                            borderRadius:
+                                BorderRadius.circular(8), // Rounded corners
                           ),
                         ),
                         child: const Text(
@@ -515,12 +529,14 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                           period: const Duration(seconds: 2),
                           enabled: _score >= 600 ? true : false,
                           baseColor: const Color.fromARGB(255, 0, 43, 54),
-                          highlightColor: const Color.fromARGB(255, 234, 234, 12),
+                          highlightColor:
+                              const Color.fromARGB(255, 234, 234, 12),
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: Colors.white, // Set to transparent to avoid double border
+                                color: Colors
+                                    .white, // Set to transparent to avoid double border
                                 width: 2.2,
                               ),
                             ),
@@ -554,7 +570,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
               ),
             if (_isAnimating)
               Container(
-                color: Colors.transparent.withOpacity(0.9), // Adjust opacity here (0.0 - 1.0)
+                color: Colors.transparent
+                    .withOpacity(0.9), // Adjust opacity here (0.0 - 1.0)
                 child: Center(
                   child: Lottie.asset('assets/animation/reward_animation.json'),
                 ),

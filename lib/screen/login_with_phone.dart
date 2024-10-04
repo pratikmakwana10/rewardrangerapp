@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:rewardrangerapp/helper_function/utility.dart';
 import 'package:rewardrangerapp/screen/dashboard_screen.dart';
 import 'package:rewardrangerapp/screen/otp_veridication.dart';
 import 'package:rewardrangerapp/widget/elevated_button.dart';
-import '../widget/text_field.dart'; // Import your text field widget
 
 class LoginWithPhone extends StatefulWidget {
   const LoginWithPhone({super.key});
@@ -18,6 +18,7 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String? _verificationId; // Variable to store verification ID
+  PhoneNumber? _phoneNumber; // Variable to store the selected phone number
 
   @override
   void dispose() {
@@ -26,9 +27,7 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
   }
 
   Future<void> _login() async {
-    final String phoneNumber = _phoneController.text;
-
-    if (phoneNumber.isEmpty) {
+    if (_phoneNumber == null || _phoneNumber!.phoneNumber!.isEmpty) {
       // Handle empty fields
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter your phone number')),
@@ -37,8 +36,10 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
     }
 
     try {
+      String fullPhoneNumber = '${_phoneNumber!.phoneNumber}';
+      logger.f('${_phoneNumber!.phoneNumber}');
       await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
+        phoneNumber: fullPhoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           await _auth.signInWithCredential(credential);
           // Navigate to dashboard or home screen on successful sign-in
@@ -50,9 +51,10 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
         verificationFailed: (FirebaseAuthException e) {
           // Handle error
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to verify phone number: ${e.message}')),
+            SnackBar(
+              content: Text('Failed to verify phone number: ${e.message}'),
+            ),
           );
-          logger.e('Failed to verify phone number: ${e.message}');
         },
         codeSent: (String verificationId, int? resendToken) {
           setState(() {
@@ -62,8 +64,11 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    EnterOtpScreen(verificationId: _verificationId!, phoneNumber: phoneNumber)),
+              builder: (context) => EnterOtpScreen(
+                verificationId: _verificationId!,
+                phoneNumber: _phoneNumber!.phoneNumber!,
+              ),
+            ),
           );
         },
         codeAutoRetrievalTimeout: (String verificationId) {
@@ -77,7 +82,6 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
-      logger.e('Error: ${e.toString()}');
     }
   }
 
@@ -93,10 +97,34 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CustomTextField(
-              controller: _phoneController,
-              labelText: 'Phone Number',
-              keyboardType: TextInputType.phone,
+            SizedBox(
+              width: double.infinity,
+              child: InternationalPhoneNumberInput(
+                onInputChanged: (PhoneNumber number) {
+                  setState(() {
+                    _phoneNumber = number;
+                  });
+                },
+                selectorTextStyle: const TextStyle(color: Colors.white),
+                textFieldController: _phoneController,
+                inputDecoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  labelText: 'Phone Number',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  hintText: 'Enter your phone number',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                ),
+                selectorConfig: SelectorConfig(
+                  selectorType: PhoneInputSelectorType.DROPDOWN,
+                  showFlags: true,
+                  useEmoji: true,
+                ),
+                initialValue: PhoneNumber(isoCode: 'IN'),
+                formatInput: false,
+                keyboardType: TextInputType.phone,
+              ),
             ),
             const SizedBox(height: 20),
             CustomElevatedButton(

@@ -17,9 +17,10 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController =
       TextEditingController(text: "flutterdev.pratik@gmail.com");
-  final TextEditingController _passwordController = TextEditingController(text: "Welcome@123");
+  final TextEditingController _passwordController =
+      TextEditingController(text: "Welcome@123");
   bool _isLoading = false;
-  bool _isPasswordVisible = false;
+  bool _isPasswordVisible = false; // For password visibility
 
   final ApiService _apiService = GetIt.instance<ApiService>();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -38,7 +39,7 @@ class _LoginState extends State<Login> {
         final response = await _apiService.login(credentials);
         final token = response['token'];
 
-        // Introduce a delay of 5 seconds
+        // Introduce a delay of 1.5 seconds
         await Future.delayed(const Duration(milliseconds: 1500));
 
         // Store the token securely
@@ -88,9 +89,9 @@ class _LoginState extends State<Login> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    TextFormField(
+                    _buildTextFormField(
                       controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
+                      labelText: 'Email',
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -103,13 +104,18 @@ class _LoginState extends State<Login> {
                       },
                     ),
                     const SizedBox(height: 16.0),
-                    TextFormField(
+                    _buildTextFormField(
                       controller: _passwordController,
+                      labelText: 'Password',
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                           onPressed: () {
                             setState(() {
@@ -133,7 +139,8 @@ class _LoginState extends State<Login> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ForgotPassword()),
+                            MaterialPageRoute(
+                                builder: (context) => const ForgotPassword()),
                           );
                         },
                         child: const Text('Forgot your password?'),
@@ -147,15 +154,18 @@ class _LoginState extends State<Login> {
                       child: LoadingAnimationWidget.discreteCircle(
                           color: const Color.fromARGB(199, 23, 228, 255),
                           size: 50,
-                          secondRingColor: const Color.fromARGB(255, 135, 206, 235),
-                          thirdRingColor: const Color.fromARGB(255, 240, 128, 128)),
+                          secondRingColor:
+                              const Color.fromARGB(255, 135, 206, 235),
+                          thirdRingColor:
+                              const Color.fromARGB(255, 240, 128, 128)),
                     )
                   : SizedBox(
                       height: 45,
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 10, 90, 211)),
+                            backgroundColor:
+                                const Color.fromARGB(255, 10, 90, 211)),
                         onPressed: _login,
                         child: const Text('Login'),
                       ),
@@ -164,6 +174,36 @@ class _LoginState extends State<Login> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    bool readOnly = false,
+    InputDecoration? decoration, // Use InputDecoration
+    Function()? onTap,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        readOnly: readOnly,
+        onTap: onTap,
+        decoration: decoration ??
+            InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              labelText: labelText, // Ensure labelText is used here
+            ),
+        validator: validator,
       ),
     );
   }
