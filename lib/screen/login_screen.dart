@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:rewardrangerapp/helper_function/api_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:rewardrangerapp/screen/forgot_password.dart';
+import 'package:rewardrangerapp/widget/elevated_button.dart';
 import 'dashboard_screen.dart';
 
 class Login extends StatefulWidget {
@@ -71,15 +73,15 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // Extend the body behind the AppBar
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text("Login"),
         centerTitle: true,
-        backgroundColor: Colors.transparent, // Make the AppBar transparent
-        elevation: 0, // Remove AppBar elevation
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.sp), // Responsive padding
         child: Form(
           key: _formKey,
           child: Column(
@@ -103,13 +105,14 @@ class _LoginState extends State<Login> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16.0),
+                    SizedBox(height: 16.h), // Responsive height
                     _buildTextFormField(
                       controller: _passwordController,
                       labelText: 'Password',
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                          borderRadius: BorderRadius.circular(
+                              10.0.sp), // Responsive border radius
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -132,7 +135,6 @@ class _LoginState extends State<Login> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16.0),
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -143,7 +145,10 @@ class _LoginState extends State<Login> {
                                 builder: (context) => const ForgotPassword()),
                           );
                         },
-                        child: const Text('Forgot your password?'),
+                        child: const Text(
+                          'Forgot your password?',
+                          style: TextStyle(fontSize: 12),
+                        ),
                       ),
                     ),
                   ],
@@ -152,25 +157,23 @@ class _LoginState extends State<Login> {
               _isLoading
                   ? Center(
                       child: LoadingAnimationWidget.discreteCircle(
-                          color: const Color.fromARGB(199, 23, 228, 255),
-                          size: 50,
-                          secondRingColor:
-                              const Color.fromARGB(255, 135, 206, 235),
-                          thirdRingColor:
-                              const Color.fromARGB(255, 240, 128, 128)),
+                        color: const Color.fromARGB(199, 23, 228, 255),
+                        size: 50.sp, // Responsive size
+                        secondRingColor:
+                            const Color.fromARGB(255, 135, 206, 235),
+                        thirdRingColor:
+                            const Color.fromARGB(255, 240, 128, 128),
+                      ),
                     )
                   : SizedBox(
-                      height: 45,
+                      height: 45.h, // Responsive height
                       width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 10, 90, 211)),
+                      child: CustomElevatedButton(
+                        text: 'Login',
                         onPressed: _login,
-                        child: const Text('Login'),
                       ),
                     ),
-              const SizedBox(height: 20.0), // Add some space below the button
+              SizedBox(height: 20.h), // Responsive height
             ],
           ),
         ),
@@ -189,7 +192,7 @@ class _LoginState extends State<Login> {
     String? Function(String?)? validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 8.0.h),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
@@ -199,7 +202,7 @@ class _LoginState extends State<Login> {
         decoration: decoration ??
             InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(10.0.r),
               ),
               labelText: labelText, // Ensure labelText is used here
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:rewardrangerapp/screen/signup_screen.dart';
 import 'package:rewardrangerapp/widget/elevated_button.dart';
 
@@ -9,37 +10,53 @@ class SignUpOptionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Sign Up Options',
-          )),
+        centerTitle: true,
+        title: const Text(
+          'Sign Up Options',
+        ),
+      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CustomElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SignUpPage(isPhoneAuth: true),
-                  ),
-                );
-              },
-              text: 'Sign Up with Phone',
-            ),
-            CustomElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SignUpPage(isPhoneAuth: false),
-                  ),
-                );
-              },
-              text: 'Sign Up with Email',
-            ),
-          ],
+        child: Padding(
+          padding: EdgeInsets.all(16.0.sp), // Responsive padding
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // First Sign Up Button
+              SizedBox(
+                width: double.infinity, // Full width
+                child: CustomElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const SignUpPage(isPhoneAuth: true),
+                      ),
+                    );
+                  },
+                  text: 'Sign Up with Phone',
+                ),
+              ),
+              SizedBox(height: 20.h), // Responsive space between buttons
+
+              // Second Sign Up Button
+              SizedBox(
+                width: double.infinity, // Full width
+                child: CustomElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const SignUpPage(isPhoneAuth: false),
+                      ),
+                    );
+                  },
+                  text: 'Sign Up with Email',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

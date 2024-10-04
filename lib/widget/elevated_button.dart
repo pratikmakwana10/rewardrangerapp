@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomElevatedButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -13,28 +14,28 @@ class CustomElevatedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // padding: const EdgeInsets.symmetric(
-      //   horizontal: 10,
-      // ),
-      width: double.infinity,
+      width: double.infinity, // Full width
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromRGBO(20, 34, 74, 1),
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16, vertical: 8), // Horizontal padding
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.sp, // Responsive horizontal padding
+            vertical: 8.sp, // Responsive vertical padding
+          ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // Rounded corners
+            borderRadius:
+                BorderRadius.circular(8.sp), // Responsive border radius
           ),
         ),
         onPressed: onPressed,
         child: Text(
           text,
-          style: const TextStyle(
-            // color: Colors.black,
+          style: TextStyle(
             fontStyle: FontStyle.normal,
             fontWeight: FontWeight.bold,
-            fontSize: 16, letterSpacing: 1.5,
-            fontFamily: 'LucidaSans', // Use the custom font family
+            fontSize: 16.sp, // Responsive font size
+            letterSpacing: 1.5,
+            fontFamily: 'LucidaSans', // Custom font family
           ),
         ),
       ),

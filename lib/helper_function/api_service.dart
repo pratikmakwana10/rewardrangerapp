@@ -29,7 +29,8 @@ class ApiService {
     ));
   }
 
-  Future<Map<String, dynamic>> signUpWithEmail(Map<String, dynamic> userData) async {
+  Future<Map<String, dynamic>> signUpWithEmail(
+      Map<String, dynamic> userData) async {
     const String endpoint = 'https://reward-ranger-backend.onrender.com/signup';
 
     try {
@@ -46,22 +47,34 @@ class ApiService {
     return {};
   }
 
-  Future<Map<String, dynamic>> signUpWithPhone(Map<String, dynamic> userData) async {
+  Future<Map<String, dynamic>> signUpWithPhone(
+      Map<String, dynamic> userData) async {
     const String endpoint =
         'https://reward-ranger-backend.onrender.com/signup'; // Replace with your phone signup endpoint
 
     try {
       final Response response = await _dio.post(endpoint, data: userData);
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         logger.i('Sign Up with Phone Response: ${response.data}');
         return response.data;
       } else {
-        throw Exception('Phone sign up failed with status: ${response.statusCode}');
+        // Log the full response for debugging
+        logger.e(
+            'Failed to sign up. Status: ${response.statusCode}, Response: ${response.data}');
+        throw Exception(
+            'Phone sign up failed with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
+      // Log the error details
       _handleDioError(e);
+      // Optionally re-throw the error for upstream handling
+      throw Exception('Sign up failed: ${e.message}');
+    } catch (e) {
+      // Handle any other exceptions that might occur
+      logger.e('An unexpected error occurred: $e');
+      throw Exception('An unexpected error occurred: $e');
     }
-    return {};
   }
 
   Future<Map<String, dynamic>> login(Map<String, dynamic> credentials) async {
@@ -125,7 +138,8 @@ class ApiService {
     required String phoneNumber,
     required String recaptchaToken,
   }) async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/send-verification-code';
+    const String endpoint =
+        'https://reward-ranger-backend.onrender.com/api/send-verification-code';
 
     try {
       final Response response = await _dio.post(
@@ -139,7 +153,8 @@ class ApiService {
         logger.i('Verification code sent successfully: ${response.data}');
         return response.data;
       } else {
-        throw Exception('Failed to send verification code: ${response.statusCode}');
+        throw Exception(
+            'Failed to send verification code: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _handleDioError(e);
@@ -151,7 +166,8 @@ class ApiService {
     required String sessionInfo,
     required String otp,
   }) async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/verify-otp';
+    const String endpoint =
+        'https://reward-ranger-backend.onrender.com/api/verify-otp';
 
     try {
       final Response response = await _dio.post(
@@ -168,10 +184,12 @@ class ApiService {
           _token = responseData['data']['token'];
           return responseData['data'];
         } else {
-          throw Exception('OTP verification failed: ${responseData['message']}');
+          throw Exception(
+              'OTP verification failed: ${responseData['message']}');
         }
       } else {
-        throw Exception('OTP verification failed with status: ${response.statusCode}');
+        throw Exception(
+            'OTP verification failed with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _handleDioError(e);
@@ -206,26 +224,33 @@ class ApiService {
 
   Future<UserInfo?> getUserInfo() async {
     try {
-      // Fetch the token using _getToken method
       String? token = await _getToken();
       if (token == null) {
         throw Exception('Token is null');
       }
 
-      // Make the API call to fetch user info
+      logger.i('Fetching user info with token: $token');
+
       final response = await _dio.get(
         'https://reward-ranger-backend.onrender.com/api/me',
         options: Options(
-          headers: {
-            'token': token,
-          },
+          headers: {'token': token},
         ),
       );
 
-      // Parse the response and return UserInfo
-      if (response.statusCode == 200 && response.data['status'] == true) {
-        return UserInfo.fromJson(response.data);
+      logger.i('Response: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data['status'] == true) {
+          return UserInfo.fromJson(response.data);
+        } else {
+          logger.e('API returned error: ${response.data['message']}');
+          throw Exception(
+              'Failed to fetch user info: ${response.data['message']}');
+        }
       } else {
+        logger.e(
+            'Request failed with status: ${response.statusCode}. Response: ${response.data}');
         throw Exception('Failed to fetch user info: ${response.statusMessage}');
       }
     } on DioException catch (e) {
@@ -238,7 +263,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> postScore(int score) async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/score';
+    const String endpoint =
+        'https://reward-ranger-backend.onrender.com/api/score';
 
     try {
       _token ??= await _getToken();
@@ -259,7 +285,8 @@ class ApiService {
         logger.i('Score posted successfully');
         return response.data;
       } else {
-        throw Exception('Failed to update score with status: ${response.statusCode}');
+        throw Exception(
+            'Failed to update score with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _handleDioError(e);
@@ -268,7 +295,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> verifyEmail() async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/verify-email';
+    const String endpoint =
+        'https://reward-ranger-backend.onrender.com/api/verify-email';
 
     try {
       _token ??= await _getToken();
@@ -288,7 +316,8 @@ class ApiService {
         logger.i('Email verified successfully');
         return response.data;
       } else {
-        throw Exception('Failed to verify email with status: ${response.statusCode}');
+        throw Exception(
+            'Failed to verify email with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _handleDioError(e);
@@ -297,15 +326,18 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> forgotPassword(String email) async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/api/forgot-password';
+    const String endpoint =
+        'https://reward-ranger-backend.onrender.com/api/forgot-password';
 
     try {
-      final Response response = await _dio.post(endpoint, data: {'email': email});
+      final Response response =
+          await _dio.post(endpoint, data: {'email': email});
       if (response.statusCode == 200 || response.statusCode == 201) {
         logger.i('Forgot Password Response: ${response.data}');
         return response.data;
       } else {
-        throw Exception('Forgot password failed with status: ${response.statusCode}');
+        throw Exception(
+            'Forgot password failed with status: ${response.statusCode}');
       }
     } on DioException catch (e) {
       _handleDioError(e);
@@ -321,7 +353,8 @@ class ApiService {
         throw Exception('Token is not available');
       }
 
-      const String userQueryEndpoint = 'https://reward-ranger-backend.onrender.com/api/user-query';
+      const String userQueryEndpoint =
+          'https://reward-ranger-backend.onrender.com/api/user-query';
 
       final response = await _dio.post(
         userQueryEndpoint,

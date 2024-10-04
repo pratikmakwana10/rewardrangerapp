@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:rewardrangerapp/helper_function/dialog.dart';
 import 'package:shimmer/shimmer.dart';
@@ -299,9 +300,8 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    logger.w('$_isVerified}');
     return Scaffold(
-      drawerEdgeDragWidth: 100.0,
+      drawerEdgeDragWidth: 100.0.w,
       drawer: DrawerScreen(
         firstName: _firstName ?? "",
         lastName: _lastname ?? "",
@@ -316,70 +316,46 @@ class _DashboardScreenState extends State<DashboardScreen>
         excludeHeaderSemantics: true,
       ),
       body: Container(
-        decoration: const BoxDecoration(
-            // gradient: LinearGradient(
-            //   begin: Alignment.topCenter,
-            //   end: Alignment.bottomCenter,
-            //   colors: [
-            //     Color.fromARGB(255, 9, 81, 115), // start with black
-            //     Color.fromARGB(255, 57, 106, 252), // blue-ish
-            //     Color.fromARGB(255, 154, 17, 255), // purple-ish
-            //     Color.fromARGB(193, 220, 52, 2), // red
-            //   ],
-            //   stops: [
-            //     0.0,
-            //     0.3,
-            //     0.6,
-            //     1.0
-            //   ], // begin with black and end with the blue-ish
-            // ),
-            ),
+        decoration: const BoxDecoration(),
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 12.0.w), // Responsive padding
               child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    _firstName == ""
-                        ? const SizedBox(
-                            height: 35,
-                          )
-                        : AnimatedTextKit(
-                            isRepeatingAnimation: true,
-                            animatedTexts: [
-                              ColorizeAnimatedText(
-                                'Welcome, $_firstName!',
-                                textStyle: const TextStyle(
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                colors: [
-                                  const Color.fromARGB(255, 0, 234, 255),
-                                  Colors.blue,
-                                  Colors.green,
-                                  Colors.purple,
-                                  Colors.red,
-                                  Colors.deepPurple
-                                ],
-                                speed: const Duration(
-                                    milliseconds: 600), // Adjust duration here
-                              ),
-                            ],
-                            repeatForever: true,
+                    AnimatedTextKit(
+                      isRepeatingAnimation: true,
+                      animatedTexts: [
+                        ColorizeAnimatedText(
+                          'Welcome, $_firstName!',
+                          textStyle: TextStyle(
+                            fontSize: 30.sp, // Responsive font size
+                            fontWeight: FontWeight.bold,
                           ),
-                    const SizedBox(
-                      height: 10,
+                          colors: const [
+                            Color.fromARGB(255, 0, 234, 255),
+                            Colors.blue,
+                            Colors.green,
+                            Colors.purple,
+                            Colors.red,
+                            Colors.deepPurple,
+                          ],
+                          speed: const Duration(milliseconds: 600),
+                        ),
+                      ],
+                      repeatForever: true,
                     ),
-
+                    SizedBox(height: 10.h), // Responsive height
                     SizedBox(
-                      height: 200.0, // The height of the AnimatedTextKit widget
+                      height: 100.h, // Responsive height
                       child: DefaultTextStyle(
-                        style: const TextStyle(
-                          fontSize: 70.0,
+                        style: TextStyle(
+                          fontSize: 70.sp, // Responsive font size
                           fontFamily: 'Canterbury',
-                          color: Color.fromARGB(255, 0, 234, 255),
+                          color: const Color.fromARGB(255, 0, 234, 255),
                         ),
                         child: AnimatedTextKit(
                           totalRepeatCount: 1,
@@ -395,13 +371,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                               _firstAnimationComplete = true;
                             });
                           },
-                          onTap: () {
-                            print("Tap Event");
-                          },
                         ),
                       ),
                     ),
-
                     AnimatedBuilder(
                       animation: _controller,
                       builder: (context, child) {
@@ -411,33 +383,29 @@ class _DashboardScreenState extends State<DashboardScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                // Icons.currency_exchange,
                                 Icons.paid_outlined,
-                                // Icons.assured_workload,
                                 color: _colorAnimation.value,
-                                size: 40,
+                                size: 40.sp, // Responsive size
                               ),
                               Text(
                                 ' $_score',
-                                //💵💸💰💲🎁💴💶💯🏦
                                 style: TextStyle(
-                                    color: _colorAnimation.value,
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.bold),
+                                  color: _colorAnimation.value,
+                                  fontSize: 40.sp, // Responsive font size
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
                         );
                       },
                     ),
-                    const SizedBox(
-                      height: 30,
-                    ),
+                    SizedBox(height: 30.h), // Responsive height
                     SizedBox(
-                      height: 130.0, // The height of the AnimatedTextKit widget
+                      height: 130.h, // Responsive height
                       child: DefaultTextStyle(
-                        style: const TextStyle(
-                          fontSize: 20.0,
+                        style: TextStyle(
+                          fontSize: 20.sp, // Responsive font size
                           fontFamily: 'Canterbury',
                         ),
                         child: AnimatedTextKit(
@@ -445,60 +413,55 @@ class _DashboardScreenState extends State<DashboardScreen>
                           isRepeatingAnimation: false,
                           animatedTexts: [
                             TypewriterAnimatedText(
-                              textAlign: TextAlign.center, cursor: "  <",
+                              textAlign: TextAlign.center,
+                              cursor: "  <",
                               curve: Curves.easeInOutCubic,
-                              // curve: Curves.easeInOutCirc,
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 0, 234, 255),
+                              textStyle: TextStyle(
+                                color: const Color.fromARGB(255, 0, 234, 255),
                               ),
                               _quoteAnimationStarted
                                   ? _currentQuote
                                   : quotes[_currentIndex.toInt()],
-                              speed: const Duration(
-                                  milliseconds: 100), // Adjust speed here
+                              speed: const Duration(milliseconds: 100),
                             ),
                           ],
                           onFinished: () {
                             setState(() {
                               _quoteAnimationStarted = true;
-                              _currentQuote = quotes[_currentIndex
-                                  .toInt()]; // Update current quote
+                              _currentQuote = quotes[_currentIndex.toInt()];
                             });
-                          },
-                          onTap: () {
-                            print("Tap Event");
                           },
                         ),
                       ),
-                    ), // Display the current score
-
+                    ),
+                    SizedBox(height: 150.h), // Responsive height
                     SizedBox(
                       width: double.maxFinite,
                       child: ElevatedButton(
                         onPressed: _showRewardedAd,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(20, 34, 74, 1),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8), // Horizontal padding
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w, // Responsive horizontal padding
+                            vertical: 8.h, // Responsive vertical padding
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadius.circular(8), // Rounded corners
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Earn Coin',
                           style: TextStyle(
-                              color: Colors.white,
-                              letterSpacing: 1.2,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
+                            color: Colors.white,
+                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp, // Responsive font size
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    SizedBox(height: 20.h), // Responsive height
                     ElevatedButton(
                       onPressed: _toggleAnimation,
                       style: ButtonStyle(
@@ -507,9 +470,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         elevation: WidgetStateProperty.all(0),
                         padding: WidgetStateProperty.all(
-                          const EdgeInsets.only(
-                            bottom: 20,
-                          ),
+                          EdgeInsets.only(
+                              bottom: 20.h), // Responsive bottom padding
                         ),
                       ),
                       child: Ink(
@@ -527,28 +489,28 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         child: Shimmer.fromColors(
                           period: const Duration(seconds: 2),
-                          enabled: _score >= 600 ? true : false,
+                          enabled: _score >= 600,
                           baseColor: const Color.fromARGB(255, 0, 43, 54),
                           highlightColor:
                               const Color.fromARGB(255, 234, 234, 12),
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                               border: Border.all(
-                                color: Colors
-                                    .white, // Set to transparent to avoid double border
+                                color: Colors.white,
                                 width: 2.2,
                               ),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 8.h), // Responsive vertical padding
                             alignment: Alignment.center,
-                            child: const Text(
+                            child: Text(
                               'REDEEM',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 5,
-                                fontSize: 20,
+                                fontSize: 20.sp,
                               ),
                             ),
                           ),
@@ -570,8 +532,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
             if (_isAnimating)
               Container(
-                color: Colors.transparent
-                    .withOpacity(0.9), // Adjust opacity here (0.0 - 1.0)
+                color: Colors.transparent.withOpacity(0.9),
                 child: Center(
                   child: Lottie.asset('assets/animation/reward_animation.json'),
                 ),
