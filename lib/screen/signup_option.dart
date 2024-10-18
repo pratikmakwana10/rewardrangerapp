@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:flutter_svg/svg.dart';
 import 'package:rewardrangerapp/screen/signup_screen.dart';
 import 'package:rewardrangerapp/widget/elevated_button.dart';
 
@@ -17,10 +18,22 @@ class SignUpOptionsScreen extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0.sp), // Responsive padding
+          padding:
+              EdgeInsets.symmetric(horizontal: 15.0.sp), // Responsive padding
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(
+                height: 60.h,
+              ),
+              SvgPicture.asset(
+                "assets/images/Signup.svg",
+                height: 300.0.h, // Optional: Set height or width if needed
+                width: double.infinity,
+              ),
+              SizedBox(
+                height: 160.h,
+              ),
               // First Sign Up Button
               SizedBox(
                 width: double.infinity, // Full width

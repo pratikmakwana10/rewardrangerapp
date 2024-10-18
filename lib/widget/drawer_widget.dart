@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 import 'package:rewardrangerapp/screen/signup_option.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../screen/contact_support.dart';
 
 class DrawerScreen extends StatelessWidget {
@@ -65,17 +66,33 @@ class DrawerScreen extends StatelessWidget {
             Icons.logout_rounded,
             'Log Out',
             () {
+              _logout(context);
               // Handle logout action
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const SignUpOptionsScreen()),
-                (Route<dynamic> route) => false,
-              );
             },
           ),
         ],
       ),
+    );
+  }
+
+  void _logout(BuildContext context) async {
+    // Get the instance of SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Remove the stored token
+    await prefs.remove('token');
+
+    // Optionally, navigate to the login screen or another appropriate screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              SignUpOptionsScreen()), // Replace with your actual login screen widget
+    );
+
+    // Optionally, show a message or log out action for feedback
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Logged out successfully')),
     );
   }
 
