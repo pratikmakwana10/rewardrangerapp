@@ -46,7 +46,9 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> _submit() async {
+    // Validate the form
     if (_formKey.currentState?.validate() ?? false) {
+      // Prepare user data for submission
       Map<String, dynamic> userData = {
         "first_name": _firstNameController.text,
         "last_name": _lastNameController.text,
@@ -56,9 +58,10 @@ class _SignUpPageState extends State<SignUpPage> {
         "city": _cityController.text,
       };
 
+      // Add phone or email based on authentication type
       if (widget.isPhoneAuth) {
         userData["phone"] = _phoneNumber.phoneNumber;
-        logger.w("Phone NUM: ${_phoneNumber.phoneNumber}");
+        logger.w("Phone Number: ${_phoneNumber.phoneNumber}");
       } else {
         userData["email"] = _emailController.text;
         userData["password"] = _passwordController.text;
@@ -67,14 +70,17 @@ class _SignUpPageState extends State<SignUpPage> {
       logger.i('Submitting data: $userData');
 
       try {
-        final response = await (widget.isPhoneAuth
-            ? _apiService.signUpWithPhone(userData)
-            : _apiService.signUpWithEmail(userData));
+        // Call the appropriate API service method
+        final response = widget.isPhoneAuth
+            ? await _apiService.signUp(userData)
+            : await _apiService.signUp(userData);
 
+        // Check the response status
         if (response['status'] == true) {
           logger.i('Sign up successful: ${response['message']}');
           _showSuccessSnackbar(response['message']);
           if (mounted) {
+            // Navigate to the appropriate screen after successful sign up
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -276,6 +282,7 @@ class _SignUpPageState extends State<SignUpPage> {
               _buildTextFormField(
                 controller: _firstNameController,
                 labelText: 'First Name',
+                textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your first name';
@@ -285,6 +292,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               _buildTextFormField(
                 controller: _lastNameController,
+                textCapitalization: TextCapitalization.words,
                 labelText: 'Last Name',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -326,6 +334,7 @@ class _SignUpPageState extends State<SignUpPage> {
               _buildTextFormField(
                 controller: _cityController,
                 labelText: 'City',
+                textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your city';
@@ -369,6 +378,8 @@ class _SignUpPageState extends State<SignUpPage> {
     bool readOnly = false,
     Function()? onTap,
     String? Function(String?)? validator,
+    TextCapitalization textCapitalization =
+        TextCapitalization.none, // Default none
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0.h),
@@ -378,6 +389,7 @@ class _SignUpPageState extends State<SignUpPage> {
         obscureText: obscureText,
         readOnly: readOnly,
         onTap: onTap,
+        textCapitalization: textCapitalization, // Set text capitalization here
         decoration: InputDecoration(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0.r),

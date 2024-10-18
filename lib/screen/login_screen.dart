@@ -3,9 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:rewardrangerapp/helper_function/api_service.dart';
 import 'package:get_it/get_it.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:rewardrangerapp/helper_function/utility.dart';
 import 'package:rewardrangerapp/screen/forgot_password.dart';
 import 'package:rewardrangerapp/widget/elevated_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard_screen.dart';
 
 class Login extends StatefulWidget {
@@ -20,12 +21,11 @@ class _LoginState extends State<Login> {
   final TextEditingController _emailController =
       TextEditingController(text: "flutterdev.pratik@gmail.com");
   final TextEditingController _passwordController =
-      TextEditingController(text: "Welcome@123");
+      TextEditingController(text: "123456");
   bool _isLoading = false;
   bool _isPasswordVisible = false; // For password visibility
 
   final ApiService _apiService = GetIt.instance<ApiService>();
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
@@ -38,14 +38,25 @@ class _LoginState extends State<Login> {
           'email': _emailController.text,
           'password': _passwordController.text,
         };
-        final response = await _apiService.login(credentials);
-        final token = response['token'];
 
-        // Introduce a delay of 1.5 seconds
+        // Make the login API call
+        final response = await _apiService.login(credentials);
+
+        // Log the API response for debugging
+        logger.d('Login response: $response');
+
+        // Check if the token exists in the response
+        final token = response['token'];
+        if (token == null) {
+          throw Exception('Token is null or missing in the response');
+        }
+
+        // Introduce a delay of 1.5 seconds (for animation purposes)
         await Future.delayed(const Duration(milliseconds: 1500));
 
         // Store the token securely
-        await _storage.write(key: 'token', value: token);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful!')),
@@ -62,6 +73,7 @@ class _LoginState extends State<Login> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login failed: $e')),
         );
+        logger.e(e);
       } finally {
         setState(() {
           _isLoading = false;

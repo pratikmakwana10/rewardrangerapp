@@ -12,7 +12,20 @@
           "package_name": "com.example.rewardrangerapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "221005378824-d0vu7nansrjmr6c2o7tlpq2oua42gssi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rewardrangerapp",
+            "certificate_hash": "2c67ab7cfb118bfed0502ae5c64f92de05d4f9b0"
+          }
+        },
+        {
+          "client_id": "221005378824-9fcto0okq9f071nirbnvst3s9sm4t18i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAptUG_KJ6zNxZbkS2XYelBZa2YU8_j3KQ"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "221005378824-9fcto0okq9f071nirbnvst3s9sm4t18i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "221005378824-ee5s5clukdomi8nd733j7qhret8c3oe6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.rewardrangerapp"
+              }
+            }
+          ]
         }
       }
     }

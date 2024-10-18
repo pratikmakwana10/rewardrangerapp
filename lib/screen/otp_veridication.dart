@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rewardrangerapp/screen/dashboard_screen.dart';
-import '../widget/text_field.dart'; // Import if not already added
 
 class EnterOtpScreen extends StatefulWidget {
   final String verificationId;
@@ -21,6 +20,7 @@ class EnterOtpScreen extends StatefulWidget {
 class _EnterOtpScreenState extends State<EnterOtpScreen> {
   final TextEditingController _otpController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _isLoading = false; // Loading state variable
 
   @override
   void dispose() {
@@ -29,6 +29,10 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
   }
 
   Future<void> _verifyOtp() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
     final String otp = _otpController.text;
 
     if (otp.isEmpty) {
@@ -36,6 +40,9 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter the OTP')),
       );
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
       return;
     }
 
@@ -55,10 +62,27 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
         );
       }
     } catch (e) {
-      // Handle error
+      // Handle error with detailed messages
+      String errorMessage = 'Failed to sign in';
+      if (e is FirebaseAuthException) {
+        switch (e.code) {
+          case 'invalid-verification-code':
+            errorMessage = 'Invalid OTP. Please try again.';
+            break;
+          case 'session-expired':
+            errorMessage = 'Session expired. Please retry.';
+            break;
+          default:
+            errorMessage = e.message ?? errorMessage;
+        }
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sign in: ${e.toString()}')),
+        SnackBar(content: Text(errorMessage)),
       );
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     }
   }
 
@@ -80,14 +104,16 @@ class _EnterOtpScreenState extends State<EnterOtpScreen> {
               keyboardType: TextInputType.number,
             ),
             SizedBox(height: 20.h), // Responsive height
-            ElevatedButton(
-              onPressed: _verifyOtp,
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(
-                    double.infinity, 50.h), // Full width, responsive height
-              ),
-              child: const Text('Verify OTP'),
-            ),
+            _isLoading
+                ? CircularProgressIndicator() // Show loading indicator
+                : ElevatedButton(
+                    onPressed: _verifyOtp,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity,
+                          50.h), // Full width, responsive height
+                    ),
+                    child: const Text('Verify OTP'),
+                  ),
           ],
         ),
       ),

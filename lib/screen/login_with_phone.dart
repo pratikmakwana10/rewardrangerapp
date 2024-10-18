@@ -15,71 +15,83 @@ class LoginWithPhone extends StatefulWidget {
 }
 
 class _LoginWithPhoneState extends State<LoginWithPhone> {
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String? _verificationId; // Variable to store verification ID
   PhoneNumber? _phoneNumber; // Variable to store the selected phone number
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
   }
 
+  bool isValidPhoneNumber(String phoneNumber) {
+    // Regular expression to match E.164 format
+    final RegExp regex = RegExp(r'^\+\d{1,3}\d{10,15}$');
+    logger.f(phoneNumber);
+    return regex.hasMatch(phoneNumber);
+  }
+
   Future<void> _login() async {
-    if (_phoneNumber == null || _phoneNumber!.phoneNumber!.isEmpty) {
-      // Handle empty fields
+    // Use the phone number from the _phoneNumber object, ensuring it's in E.164 format
+    String phoneNumber = _phoneNumber?.phoneNumber ?? '';
+    logger.f(phoneNumber);
+    // Validate the phone number
+    if (!isValidPhoneNumber(phoneNumber)) {
+      logger.e("Invalid phone number: $phoneNumber");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your phone number')),
+        const SnackBar(
+            content:
+                Text('Please enter a valid phone number in E.164 format.')),
       );
       return;
     }
 
     try {
-      String fullPhoneNumber = '${_phoneNumber!.phoneNumber}';
-      logger.f('${_phoneNumber!.phoneNumber}');
+      print('👾 Attempting to verify phone number: $phoneNumber');
+
       await _auth.verifyPhoneNumber(
-        phoneNumber: fullPhoneNumber,
+        phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
+          print(
+              '🔐 Verification completed automatically: ${credential.smsCode}');
           await _auth.signInWithCredential(credential);
-          // Navigate to dashboard or home screen on successful sign-in
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const DashboardScreen()),
           );
         },
         verificationFailed: (FirebaseAuthException e) {
-          // Handle error
+          print('❌ Verification failed: ${e.message}');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to verify phone number: ${e.message}'),
-            ),
+            SnackBar(content: Text('Verification failed: ${e.message}')),
           );
         },
         codeSent: (String verificationId, int? resendToken) {
-          setState(() {
-            _verificationId = verificationId;
-          });
-          // Navigate to OTP input screen
+          print(
+              '📩 Code sent to $phoneNumber, verification ID: $verificationId');
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => EnterOtpScreen(
-                verificationId: _verificationId!,
-                phoneNumber: _phoneNumber!.phoneNumber!,
+                verificationId: verificationId,
+                phoneNumber: phoneNumber,
               ),
             ),
           );
         },
         codeAutoRetrievalTimeout: (String verificationId) {
-          setState(() {
-            _verificationId = verificationId;
-          });
+          print('⏰ Auto-retrieval timeout, verification ID: $verificationId');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Auto-retrieval timed out. Please enter the OTP manually.')),
+          );
         },
       );
     } catch (e) {
-      // Handle exceptions
+      print('⚠️ Error during phone number verification: ${e.toString()}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
@@ -103,20 +115,17 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
               child: InternationalPhoneNumberInput(
                 onInputChanged: (PhoneNumber number) {
                   setState(() {
-                    _phoneNumber = number;
+                    _phoneNumber = number; // Store the selected phone number
                   });
                 },
-                selectorTextStyle: const TextStyle(
-                    color: Colors.black), // Change color for visibility
-                textFieldController: _phoneController,
+                selectorTextStyle: const TextStyle(color: Colors.black),
+                textFieldController: _phoneNumberController,
                 inputDecoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                        10.0.sp), // Responsive border radius
+                    borderRadius: BorderRadius.circular(10.0.sp),
                   ),
                   labelText: 'Phone Number',
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20.0.sp), // Responsive padding
+                  contentPadding: EdgeInsets.symmetric(horizontal: 20.0.sp),
                   hintText: 'Enter your phone number',
                   hintStyle: const TextStyle(color: Colors.grey),
                 ),
@@ -125,7 +134,7 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
                   showFlags: true,
                   useEmoji: true,
                 ),
-                initialValue: PhoneNumber(isoCode: 'IN'),
+                initialValue: PhoneNumber(isoCode: 'IN'), // Default to India
                 formatInput: false,
                 keyboardType: TextInputType.phone,
               ),
@@ -134,11 +143,6 @@ class _LoginWithPhoneState extends State<LoginWithPhone> {
             CustomElevatedButton(
               onPressed: _login,
               text: 'Login',
-              // If your CustomElevatedButton takes width and height parameters,
-              // you can set them here to be responsive too.
-              // For example:
-              // width: double.infinity,
-              // height: 50.h,
             ),
           ],
         ),

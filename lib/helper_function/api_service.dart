@@ -1,24 +1,23 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rewardrangerapp/helper_function/api_constant.dart';
 import '../helper_function/utility.dart';
 import '../model/sign_up_model.dart';
 
 class ApiService {
   final Dio _dio = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 8),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
-
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+      // connectTimeout: const Duration(seconds: 8),
+      // receiveTimeout: const Duration(seconds: 10),
+      ));
   String? _token; // Variable to store the token
 
   ApiService() {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         _token ??= await _getToken();
-        logger.i('Interceptor TokenINTRECEPTOR: $_token');
+        logger.i('Interceptor Token: $_token');
         if (_token != null) {
-          options.headers['token'] = _token;
+          options.headers['Authorization'] = '$_token';
         }
         return handler.next(options);
       },
@@ -29,359 +28,181 @@ class ApiService {
     ));
   }
 
-  Future<Map<String, dynamic>> signUpWithEmail(
-      Map<String, dynamic> userData) async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/signup';
-
-    try {
-      final Response response = await _dio.post(endpoint, data: userData);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        logger.i('Sign Up Response: ${response.data}');
-        return response.data;
-      } else {
-        throw Exception('Sign up failed with status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-    }
-    return {};
-  }
-
-  Future<Map<String, dynamic>> signUpWithPhone(
-      Map<String, dynamic> userData) async {
-    const String endpoint =
-        'https://reward-ranger-backend.onrender.com/signup'; // Replace with your phone signup endpoint
-
-    try {
-      final Response response = await _dio.post(endpoint, data: userData);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        logger.i('Sign Up with Phone Response: ${response.data}');
-        return response.data;
-      } else {
-        // Log the full response for debugging
-        logger.e(
-            'Failed to sign up. Status: ${response.statusCode}, Response: ${response.data}');
-        throw Exception(
-            'Phone sign up failed with status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      // Log the error details
-      _handleDioError(e);
-      // Optionally re-throw the error for upstream handling
-      throw Exception('Sign up failed: ${e.message}');
-    } catch (e) {
-      // Handle any other exceptions that might occur
-      logger.e('An unexpected error occurred: $e');
-      throw Exception('An unexpected error occurred: $e');
-    }
+  Future<Map<String, dynamic>> signUp(Map<String, dynamic> userData,
+      {bool isPhoneSignup = false}) async {
+    return await _postRequest(ApiConstant.signup, userData);
   }
 
   Future<Map<String, dynamic>> login(Map<String, dynamic> credentials) async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/login';
-
-    try {
-      final Response response = await _dio.post(endpoint, data: credentials);
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        if (responseData['status'] == true) {
-          logger.i('Login Response: ${responseData['data']}');
-          await _saveToken(responseData['data']['token']);
-          _token = responseData['data']['token']; // Update the token variable
-          return responseData['data'];
-        } else {
-          throw Exception('Login failed: ${responseData['message']}');
-        }
-      } else {
-        throw Exception('Login failed with status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
+    final responseData = await _postRequest(ApiConstant.login, credentials);
+    logger.f(responseData);
+    if (responseData.isNotEmpty && responseData['status'] == true) {
+      await _saveToken(responseData['data']['token']);
+      _token = responseData['data']['token'];
     }
-    return {};
+    return responseData;
   }
 
   Future<Map<String, dynamic>> loginWithPhone({
     required String sessionInfo,
     required String otp,
   }) async {
-    const String endpoint = 'https://reward-ranger-backend.onrender.com/login';
-
-    try {
-      final Response response = await _dio.post(
-        endpoint,
-        data: {
-          'session_info': sessionInfo,
-          'otp': otp,
-        },
-      );
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        if (responseData['status'] == true) {
-          logger.i('Login Response: ${responseData['data']}');
-          await _saveToken(responseData['data']['token']);
-          _token = responseData['data']['token']; // Update the token variable
-          return responseData['data'];
-        } else {
-          throw Exception('Login failed: ${responseData['message']}');
-        }
-      } else {
-        throw Exception('Login failed with status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-    }
-    return {};
+    return await _postRequest(ApiConstant.login, {
+      'session_info': sessionInfo,
+      'otp': otp,
+    });
   }
 
   Future<Map<String, dynamic>> sendVerificationCode({
     required String phoneNumber,
     required String recaptchaToken,
   }) async {
-    const String endpoint =
-        'https://reward-ranger-backend.onrender.com/api/send-verification-code';
-
-    try {
-      final Response response = await _dio.post(
-        endpoint,
-        data: {
-          'phone_number': phoneNumber,
-          'recaptcha_token': recaptchaToken,
-        },
-      );
-      if (response.statusCode == 200) {
-        logger.i('Verification code sent successfully: ${response.data}');
-        return response.data;
-      } else {
-        throw Exception(
-            'Failed to send verification code: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-    }
-    return {};
+    return await _postRequest(ApiConstant.sendVerificationCode, {
+      'phone_number': phoneNumber,
+      'recaptcha_token': recaptchaToken,
+    });
   }
 
   Future<Map<String, dynamic>> verifyOtp({
     required String sessionInfo,
     required String otp,
   }) async {
-    const String endpoint =
-        'https://reward-ranger-backend.onrender.com/api/verify-otp';
+    final responseData = await _postRequest(ApiConstant.verifyOtp, {
+      'session_info': sessionInfo,
+      'otp': otp,
+    });
+    if (responseData.isNotEmpty && responseData['status'] == true) {
+      await _saveToken(responseData['data']['token']);
+      _token = responseData['data']['token'];
+    }
+    return responseData;
+  }
 
+  Future<UserInfo?> getUserInfo() async {
     try {
-      final Response response = await _dio.post(
-        endpoint,
-        data: {
-          'session_info': sessionInfo,
-          'otp': otp,
-        },
+      String? token = await _getTokenOrThrow();
+      logger.f('Fetching user info with token: $token');
+      final response = await _dio.get(
+        ApiConstant.userInfo,
+        options: Options(headers: {'token': token}),
       );
-      if (response.statusCode == 200) {
-        final responseData = response.data;
-        if (responseData['status'] == true) {
-          await _saveToken(responseData['data']['token']);
-          _token = responseData['data']['token'];
-          return responseData['data'];
-        } else {
-          throw Exception(
-              'OTP verification failed: ${responseData['message']}');
-        }
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        return UserInfo.fromJson(response.data);
       } else {
         throw Exception(
-            'OTP verification failed with status: ${response.statusCode}');
+            'Failed to fetch user info: ${response.data['message']}');
       }
     } on DioException catch (e) {
-      _handleDioError(e);
+      _handleDioError(e, endpoint: ApiConstant.userInfo);
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> postScore(int score) async {
+    return await _postRequest(
+        ApiConstant.dashboardScore,
+        {
+          'score': score,
+        },
+        requiresToken: true);
+  }
+
+  Future<Map<String, dynamic>> verifyEmail() async {
+    return await _postRequest(ApiConstant.verifyEmail, {}, requiresToken: true);
+  }
+
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    return await _postRequest(ApiConstant.forgotPassword, {'email': email});
+  }
+
+  Future<Map<String, dynamic>> userQuery(String queryText) async {
+    return await _postRequest(
+        ApiConstant.userQuery,
+        {
+          'query': queryText,
+        },
+        requiresToken: true);
+  }
+
+  // Generalized POST request handler to reduce code duplication
+  Future<Map<String, dynamic>> _postRequest(
+    String endpoint,
+    Map<String, dynamic> data, {
+    bool requiresToken = false,
+  }) async {
+    try {
+      if (requiresToken) {
+        await _getTokenOrThrow();
+      }
+
+      final response = await _dio.post(
+        endpoint,
+        data: data,
+        options: requiresToken ? Options(headers: {'token': _token}) : null,
+      );
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return response.data;
+      } else {
+        throw Exception('Request failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      _handleDioError(e, endpoint: endpoint);
     }
     return {};
   }
 
+  // Token and Secure Storage handling
   Future<void> _saveToken(String token) async {
     try {
-      await _storage.write(key: 'token', value: token);
-      _token = token; // Update the token variable
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
       logger.i('Token saved successfully');
     } catch (e) {
-      logger.e('Failed to save auth token: $e');
-      throw Exception('Failed to save auth token: $e');
+      logger.e('Failed to save token: $e');
+      throw Exception('Failed to save token: $e');
     }
   }
 
   Future<String?> _getToken() async {
     try {
-      if (_token == null) {
-        final token = await _storage.read(key: 'token');
-        logger.i('Token retrieved FROM GET TOKEN: $token');
-        _token = token; // Update the token variable
-      }
-      return _token;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      logger.i(
+          'Token retrieved: ${token != null ? '***' : 'null'}'); // Obscured for security
+      return token;
     } catch (e) {
-      logger.e('Failed to get auth token: $e');
-      throw Exception('Failed to get auth token: $e');
+      logger.e('Failed to get token: $e');
+      return null; // Return null if there’s an error
     }
   }
 
-  Future<UserInfo?> getUserInfo() async {
-    try {
-      String? token = await _getToken();
-      if (token == null) {
-        throw Exception('Token is null');
-      }
-
-      logger.i('Fetching user info with token: $token');
-
-      final response = await _dio.get(
-        'https://reward-ranger-backend.onrender.com/api/me',
-        options: Options(
-          headers: {'token': token},
-        ),
-      );
-
-      logger.i('Response: ${response.data}');
-
-      if (response.statusCode == 200) {
-        if (response.data['status'] == true) {
-          return UserInfo.fromJson(response.data);
-        } else {
-          logger.e('API returned error: ${response.data['message']}');
-          throw Exception(
-              'Failed to fetch user info: ${response.data['message']}');
-        }
-      } else {
-        logger.e(
-            'Request failed with status: ${response.statusCode}. Response: ${response.data}');
-        throw Exception('Failed to fetch user info: ${response.statusMessage}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-      return null;
-    } catch (e) {
-      logger.e('Error fetching user info: $e');
-      throw Exception('Error fetching user info: $e');
+  Future<String?> _getTokenOrThrow() async {
+    _token ??= await _getToken();
+    if (_token == null) {
+      logger.e('Token is not available. User may not be logged in.');
+      throw Exception('Token is not available');
     }
+    return _token;
   }
 
-  Future<Map<String, dynamic>> postScore(int score) async {
-    const String endpoint =
-        'https://reward-ranger-backend.onrender.com/api/score';
-
-    try {
-      _token ??= await _getToken();
-      if (_token == null) {
-        logger.e('Token is not available');
-        throw Exception('Token is not available');
-      }
-
-      logger.i('Posting score with token: $_token');
-      final response = await _dio.post(
-        endpoint,
-        data: {'score': score},
-        options: Options(
-          headers: {'Authorization': 'Bearer $_token'},
-        ),
-      );
-      if (response.statusCode == 200) {
-        logger.i('Score posted successfully');
-        return response.data;
-      } else {
-        throw Exception(
-            'Failed to update score with status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-    }
-    return {};
-  }
-
-  Future<Map<String, dynamic>> verifyEmail() async {
-    const String endpoint =
-        'https://reward-ranger-backend.onrender.com/api/verify-email';
-
-    try {
-      _token ??= await _getToken();
-      if (_token == null) {
-        logger.e('Token is not available');
-        throw Exception('Token is not available');
-      }
-
-      logger.i('Verifying email with token: $_token');
-      final response = await _dio.get(
-        endpoint,
-        options: Options(
-          headers: {'token': _token},
-        ),
-      );
-      if (response.statusCode == 200) {
-        logger.i('Email verified successfully');
-        return response.data;
-      } else {
-        throw Exception(
-            'Failed to verify email with status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-    }
-    return {};
-  }
-
-  Future<Map<String, dynamic>> forgotPassword(String email) async {
-    const String endpoint =
-        'https://reward-ranger-backend.onrender.com/api/forgot-password';
-
-    try {
-      final Response response =
-          await _dio.post(endpoint, data: {'email': email});
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        logger.i('Forgot Password Response: ${response.data}');
-        return response.data;
-      } else {
-        throw Exception(
-            'Forgot password failed with status: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-    }
-    return {};
-  }
-
-  Future<Map<String, dynamic>> userQuery(String queryText) async {
-    try {
-      _token ??= await _getToken();
-      if (_token == null) {
-        logger.e('Token is not available');
-        throw Exception('Token is not available');
-      }
-
-      const String userQueryEndpoint =
-          'https://reward-ranger-backend.onrender.com/api/user-query';
-
-      final response = await _dio.post(
-        userQueryEndpoint,
-        data: {'query': queryText},
-        options: Options(
-          headers: {'token': _token},
-        ),
-      );
-
-      if (response.statusCode == 200 && response.data['status'] == true) {
-        logger.i('User Query Response: ${response.data}');
-        return response.data;
-      } else {
-        throw Exception('Failed to fetch user query: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      _handleDioError(e);
-      return {}; // Handle or return appropriate response
-    } catch (e) {
-      logger.e('Error fetching user query: $e');
-      throw Exception('Error fetching user query: $e');
-    }
-  }
-
-  void _handleDioError(DioException e) {
-    if (e.response != null) {
+  // Error handling
+  void _handleDioError(DioException e, {String? endpoint}) {
+    if (e.type == DioExceptionType.connectionTimeout) {
+      logger.e('Connection timed out while calling $endpoint');
+      throw Exception('Connection timed out');
+    } else if (e.type == DioExceptionType.receiveTimeout) {
+      logger.e('Receive timeout in connection while calling $endpoint');
+      throw Exception('Receive timeout in connection');
+    } else if (e.type == DioExceptionType.unknown) {
+      logger.e('Network error while calling $endpoint: ${e.message}');
+      throw Exception('Network error');
+    } else if (e.response != null) {
       logger.e('DioException response data: ${e.response?.data}');
+      if (e.response?.statusCode == 401) {
+        logger.e('Unauthorized - Token might be expired');
+        // Handle token refresh logic or logout
+      }
       throw Exception('Request failed: ${e.response?.data}');
     } else {
       logger.e('DioException message: ${e.message}');

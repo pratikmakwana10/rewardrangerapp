@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
-import '../helper_function/api_service.dart'; // Import your ApiService
 import '../helper_function/dialog.dart';
 import '../widget/text_field.dart';
 
@@ -14,7 +13,6 @@ class ContactSupport extends StatelessWidget {
         designSize: const Size(375, 812), minTextAdapt: true);
 
     final TextEditingController controller = TextEditingController();
-    final ApiService apiService = ApiService(); // Instantiate your ApiService
 
     void handleSubmit() async {
       // Validate the form (if needed)
@@ -25,7 +23,6 @@ class ContactSupport extends StatelessWidget {
 
       // Call the userQuery API method
       try {
-        final response = await apiService.userQuery(controller.text);
         // Handle the response as needed (e.g., show result in UI)
         DialogUtil.showSuccessSnackbar(context, 'User query successful');
       } catch (e) {

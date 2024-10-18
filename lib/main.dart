@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
-import 'package:rewardrangerapp/screen/signup_option.dart';
+import 'package:get_it/get_it.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:rewardrangerapp/helper_function/theme.dart';
+import 'package:rewardrangerapp/helper_function/utility.dart';
 import 'package:rewardrangerapp/service_locator.dart';
+import 'package:rewardrangerapp/screen/signup_option.dart';
+import 'package:rewardrangerapp/screen/dashboard_screen.dart'; // Add the Dashboard screen import
 import 'package:rewardrangerapp/helper_function/security_service.dart';
 import 'package:rewardrangerapp/firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   setupLocator();
@@ -37,12 +42,29 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late SecurityService _securityService;
+  final Connectivity _connectivity = Connectivity();
+  bool _isOnline = true;
 
   @override
   void initState() {
     super.initState();
     _securityService = GetIt.instance<SecurityService>();
     _securityService.startSecurityCheck(context);
+    _checkInternetConnection();
+
+    // Listen for connectivity changes
+    _connectivity.onConnectivityChanged.listen((result) {
+      setState(() {
+        _isOnline = (result != ConnectivityResult.none);
+      });
+    });
+  }
+
+  void _checkInternetConnection() async {
+    var connectivityResult = await _connectivity.checkConnectivity();
+    setState(() {
+      _isOnline = (connectivityResult != ConnectivityResult.none);
+    });
   }
 
   @override
@@ -53,37 +75,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    const Color scaffoldBackgroundColor = Color.fromARGB(223, 6, 0, 42);
-
-    final ThemeData darkTheme = ThemeData(
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromRGBO(20, 34, 74, 1),
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16, vertical: 8), // Horizontal padding
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // Rounded corners
-          ),
-        ),
-      ),
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color.fromARGB(255, 255, 255, 255),
-        brightness: Brightness.dark,
-        onPrimary: scaffoldBackgroundColor,
-      ),
-      appBarTheme: const AppBarTheme(
-          backgroundColor: scaffoldBackgroundColor,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-              fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1)),
-      useMaterial3: true,
-      scaffoldBackgroundColor: scaffoldBackgroundColor,
-    );
-
     return FutureBuilder<bool>(
       future: _isUserLoggedIn(),
       builder: (context, snapshot) {
+        print('Connection State: ${snapshot.connectionState}');
+        print('Is Logged In: ${snapshot.data}');
         if (snapshot.connectionState == ConnectionState.waiting) {
           return MaterialApp(
             title: 'Reward Ranger App',
@@ -97,7 +93,7 @@ class _MyAppState extends State<MyApp> {
         } else {
           final bool isLoggedIn = snapshot.data ?? false;
           return ScreenUtilInit(
-            designSize: Size(375, 812), // Adjust this based on your design
+            designSize: const Size(375, 812),
             minTextAdapt: true,
             splitScreenMode: true,
             builder: (context, child) {
@@ -105,7 +101,11 @@ class _MyAppState extends State<MyApp> {
                 title: 'Reward Ranger',
                 theme: darkTheme,
                 themeMode: ThemeMode.dark,
-                home: const SignUpOptionsScreen(),
+                home: _isOnline
+                    ? (isLoggedIn
+                        ? const DashboardScreen()
+                        : const SignUpOptionsScreen())
+                    : _buildNoInternetScreen(),
               );
             },
           );
@@ -114,9 +114,36 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  Widget _buildNoInternetScreen() {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/images/no-internet.svg',
+              width: 200.w, // Using ScreenUtil for responsive sizing
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'No internet connection',
+              style: TextStyle(fontSize: 18.sp, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<bool> _isUserLoggedIn() async {
-    const storage = FlutterSecureStorage();
-    String? token = await storage.read(key: 'token');
-    return token != null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      logger.f('Token retrieved: $token');
+      return token != null;
+    } catch (e) {
+      logger.e('Error retrieving token: $e');
+      return false;
+    }
   }
 }
