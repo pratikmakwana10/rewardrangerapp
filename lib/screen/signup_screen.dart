@@ -1,12 +1,12 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:logger/logger.dart';
 import 'package:rewardrangerapp/helper_function/api_service.dart';
 import 'package:rewardrangerapp/screen/login_screen.dart';
 import 'package:rewardrangerapp/screen/login_with_phone.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class SignUpPage extends StatefulWidget {
   final bool isPhoneAuth;
@@ -28,7 +28,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final ApiService _apiService = ApiService();
   final Logger logger = Logger();
   String _selectedGender = '';
-  PhoneNumber _phoneNumber = PhoneNumber(isoCode: 'IN'); // Set India as the initial country
+  PhoneNumber _phoneNumber =
+      PhoneNumber(isoCode: 'IN'); // Set India as the initial country
   final TextEditingController _phoneController = TextEditingController();
 
   @override
@@ -49,7 +50,8 @@ class _SignUpPageState extends State<SignUpPage> {
         "first_name": _firstNameController.text,
         "last_name": _lastNameController.text,
         "gender": _selectedGender,
-        "dob": DateFormat('yyyy-MM-dd').format(DateFormat('dd-MM-yyyy').parse(_dobController.text)),
+        "dob": DateFormat('yyyy-MM-dd')
+            .format(DateFormat('dd-MM-yyyy').parse(_dobController.text)),
         "city": _cityController.text,
       };
 
@@ -215,7 +217,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
-                    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                        .hasMatch(value)) {
                       return 'Please enter a valid email';
                     }
                     return null;
@@ -403,9 +406,12 @@ class _SignUpPageState extends State<SignUpPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(icon, color: _selectedGender == gender ? Colors.blue : Colors.grey),
+          Icon(icon,
+              color: _selectedGender == gender ? Colors.blue : Colors.grey),
           Text(label,
-              style: TextStyle(color: _selectedGender == gender ? Colors.blue : Colors.grey)),
+              style: TextStyle(
+                  color:
+                      _selectedGender == gender ? Colors.blue : Colors.grey)),
         ],
       ),
     );
