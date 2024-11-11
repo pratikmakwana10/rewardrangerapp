@@ -1,0 +1,57 @@
+name: rewardrangerapp
+description: "A new Flutter project."
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.5 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  firebase_core: ^2.27.0
+  firebase_messaging: ^14.7.19
+  dio: ^5.4.3+1
+  logger: ^2.3.0
+  awesome_snackbar_content: ^0.1.3
+  get_it: ^7.6.7
+  google_mobile_ads: ^5.1.0
+  device_info_plus: ^10.1.0
+  flutter_jailbreak_detection: ^1.10.0
+  animated_text_kit: ^4.2.2
+  shimmer: ^3.0.0
+  lottie: ^3.1.2
+  loading_animation_widget: ^1.2.1
+  syncfusion_flutter_datepicker: ^26.1.40
+  country_code_picker: ^3.0.0
+  intl_phone_number_input: ^0.7.4
+  intl: ^0.19.0
+  firebase_auth: ^4.20.0
+  flutter_screenutil: ^5.9.3
+  flutter_svg: ^2.0.10+1
+  connectivity_plus: ^6.0.5
+  shared_preferences: ^2.3.2
+  firebase_app_check: ^0.2.2+7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/animation/reward_animation.json
+    - assets/images/
+
+  fonts:
+    - family: LucidaSans
+      fonts:
+        - asset: assets/font/LSANS.TTF
+          weight: 400
+        - asset: assets/font/LTYPEBO.TTF
+          weight: 700
